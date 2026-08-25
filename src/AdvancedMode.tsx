@@ -293,76 +293,132 @@ type Session = {
   c: Uint8Array;
   kSender: Uint8Array;
   kReceiver: Uint8Array;
-  tamperedK: Uint8Array | null;
   ms: number;
 };
 
 function Instrument() {
   const [paramSet, setParamSet] = useState<ParamName>("ML-KEM-512");
   const [session, setSession] = useState<Session | null>(null);
+  const [tampered, setTampered] = useState<{ k: Uint8Array; at: number } | null>(null);
 
-  function run(tamper: boolean) {
+  function run() {
     const t0 = performance.now();
     const { ek, dk } = keyGen(paramSet, randomBytes);
     const { c, k } = encaps(ek, paramSet, randomBytes);
     const kReceiver = decaps(dk, c, paramSet);
-    const ms = performance.now() - t0;
-    let tamperedK: Uint8Array | null = null;
-    if (tamper) {
-      const bad = Uint8Array.from(c);
-      bad[Math.floor(Math.random() * bad.length)] ^= 1;
-      tamperedK = decaps(dk, bad, paramSet);
-    }
-    setSession({ paramSet, ek, dk, c, kSender: k, kReceiver, tamperedK, ms });
+    setSession({ paramSet, ek, dk, c, kSender: k, kReceiver, ms: performance.now() - t0 });
+    setTampered(null);
+  }
+
+  // Tamper with the ciphertext that is actually on screen, not a fresh exchange.
+  function tamper() {
+    if (!session) return;
+    const bad = Uint8Array.from(session.c);
+    const at = Math.floor(Math.random() * bad.length);
+    bad[at] ^= 1;
+    setTampered({ k: decaps(session.dk, bad, session.paramSet), at });
   }
 
   const size = sizes(paramSet);
-  const agree = session && hex(session.kSender, 32) === hex(session.kReceiver, 32);
+  const k = size.k;
+  const agree = session !== null && hex(session.kSender, 32) === hex(session.kReceiver, 32);
 
   return (
     <div className="adv-block">
       <div className="adv-head"><span>03 / THE REAL THING</span><h3>ML-KEM, running here</h3></div>
-      <p className="adv-copy">
-        Same sum, same test, real numbers. This is not a model of ML-KEM — it is ML-KEM, the FIPS 203 algorithm implemented in
-        this page and checked against all 54 of NIST's published test vectors. The <b>t</b> below is a public key exactly like the
-        one you just broke, except that recovering its <b>s</b> would take the bottom row of that table.
-      </p>
+
+      <div className="stakes">
+        <span>WHAT THIS IS FOR</span>
+        <p>
+          Two people who have never met need one shared secret, and the only channel between them is one an eavesdropper is
+          reading in full. They cannot simply send the secret — that is the whole problem. What they can do is send a public key
+          and a scrambled package, and both arrive at the same 32 bytes anyway. Everything below is real: this is ML-KEM, the
+          FIPS 203 algorithm, implemented in this page and checked against all 54 of NIST's published test vectors.
+        </p>
+      </div>
 
       <div className="param-switch" role="group" aria-label="Parameter set">
         {(["ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"] as ParamName[]).map((p) => (
-          <button key={p} className={p === paramSet ? "on" : ""} onClick={() => { setParamSet(p); setSession(null); }} aria-pressed={p === paramSet}>{p}</button>
+          <button key={p} className={p === paramSet ? "on" : ""} onClick={() => { setParamSet(p); setSession(null); setTampered(null); }} aria-pressed={p === paramSet}>{p}</button>
         ))}
       </div>
 
       <div className="adv-actions">
-        <button className="primary-button" onClick={() => run(false)}>RUN A KEY EXCHANGE<span>→</span></button>
-        <button className="ghost-button" onClick={() => run(true)}>RUN ONE, THEN TAMPER WITH IT</button>
+        <button className="primary-button" onClick={run}>{session ? "RUN IT AGAIN" : "RUN THE EXCHANGE"}<span>→</span></button>
+        <button className="ghost-button" onClick={tamper} disabled={!session}>FLIP ONE BIT OF THE CIPHERTEXT</button>
       </div>
 
-      <div className="kv">
-        <div><span>ENCAPSULATION KEY</span><strong>{session ? hex(session.ek) : "—"}</strong><em>{size.ek} bytes</em></div>
-        <div><span>CIPHERTEXT</span><strong>{session ? hex(session.c) : "—"}</strong><em>{size.c} bytes</em></div>
-        <div><span>SENDER'S SHARED SECRET</span><strong>{session ? hex(session.kSender, 16) : "—"}</strong><em>32 bytes</em></div>
-        <div><span>RECEIVER'S SHARED SECRET</span><strong className={agree ? "hit" : ""}>{session ? hex(session.kReceiver, 16) : "—"}</strong><em>{session ? (agree ? "identical" : "MISMATCH") : "32 bytes"}</em></div>
-      </div>
+      {!session && <p className="adv-note">Nothing has run yet. Press the button and every value below is filled in from a real exchange.</p>}
 
-      {session && (
+      <div className="wire-group is-public">
+        <h4>SENT IN THE CLEAR · AN EAVESDROPPER GETS ALL OF THIS</h4>
+        <div className="kv">
+          <div>
+            <span>t <em>— the public key</em></span>
+            <strong>{session ? hex(session.ek.subarray(0, 384 * k)) : "—"}</strong>
+            <em>{384 * k} bytes</em>
+          </div>
+          <div>
+            <span>&rho; <em>— seed that rebuilds A</em></span>
+            <strong>{session ? hex(session.ek.subarray(384 * k), 8) : "—"}</strong>
+            <em>32 bytes</em>
+          </div>
+          <div>
+            <span>c <em>— the scrambled package</em></span>
+            <strong>{session ? hex(session.c) : "—"}</strong>
+            <em>{size.c} bytes</em>
+          </div>
+        </div>
         <p className="adv-note">
-          Whole exchange — keygen, encapsulate, decapsulate — in {session.ms.toFixed(1)} ms. Two parties who never exchanged a
-          secret now hold the same 32 bytes, and everything on the wire is above.
+          The first two together are the encapsulation key, {size.ek} bytes. That <b>t</b> is the same kind of object you broke
+          above — a public key with a small secret hidden inside it — and <b>&rho;</b> is the seed both sides expand into the
+          shared matrix <b>A</b>, so it never has to be transmitted. The difference is only size: recovering this <b>s</b> is the
+          bottom row of the table above.
         </p>
-      )}
+      </div>
 
-      {session?.tamperedK && (
+      <div className="wire-group is-private">
+        <h4>NEVER SENT · THIS IS WHAT THE WIRE NEVER CARRIES</h4>
+        <div className="kv">
+          <div>
+            <span>s <em>— receiver's private key</em></span>
+            <strong className="private">{session ? hex(session.dk.subarray(0, 384 * k)) : "—"}</strong>
+            <em>inside {size.dk} bytes</em>
+          </div>
+          <div>
+            <span>SENDER'S SHARED SECRET</span>
+            <strong className={agree ? "hit" : ""}>{session ? hex(session.kSender, 16) : "—"}</strong>
+            <em>32 bytes</em>
+          </div>
+          <div>
+            <span>RECEIVER'S SHARED SECRET</span>
+            <strong className={agree ? "hit" : ""}>{session ? hex(session.kReceiver, 16) : "—"}</strong>
+            <em>{session ? (agree ? "identical" : "MISMATCH") : "32 bytes"}</em>
+          </div>
+        </div>
+        {session && (
+          <p className="adv-note">
+            Both sides hold the same 32 bytes after {session.ms.toFixed(1)} ms, and neither ever put them on the wire. An
+            eavesdropper who copied every byte in the panel above cannot produce them, because doing so means recovering
+            <b> s</b> from <b>t</b> — the problem you just watched run out of universe.
+          </p>
+        )}
+      </div>
+
+      {tampered && session && (
         <div className="tamper">
-          <h4>ONE BIT FLIPPED IN THE CIPHERTEXT</h4>
+          <h4>ONE BIT FLIPPED IN c, AT BYTE {tampered.at}</h4>
           <div className="kv">
-            <div><span>SHARED SECRET NOW</span><strong className="wrong">{hex(session.tamperedK, 16)}</strong><em>rejected</em></div>
+            <div>
+              <span>RECEIVER NOW DERIVES</span>
+              <strong className="wrong">{hex(tampered.k, 16)}</strong>
+              <em>instead of {hex(session.kReceiver, 6)}</em>
+            </div>
           </div>
           <p className="adv-note">
-            Decapsulation did not fail — it returned a different key, derived from a value only the receiver holds. An attacker
-            who tampers learns nothing from the outcome, because there is no outcome to read. That is implicit rejection, and it
-            is the part of the standard that is easiest to get quietly wrong.
+            Decapsulation did not fail and did not complain — it returned a different key, derived from a value only the receiver
+            holds. An attacker who tampers therefore learns nothing from the outcome, because there is no outcome to read. That
+            is implicit rejection, and it is the part of the standard easiest to get quietly wrong.
           </p>
         </div>
       )}

@@ -62,7 +62,11 @@ Getting seven of eight right is *worse* than getting none. There is no hill to c
 
 The bottom row is not an analogy for ML-KEM-512 — it is ML-KEM-512's actual shape. Brute force is also the naive attack rather than the best one: real cryptanalysis uses lattice reduction and does far better than these figures, and is still nowhere near enough. ML-KEM-512 targets roughly the difficulty of an AES-128 key search.
 
-**The real thing.** A complete ML-KEM implementation (FIPS 203) runs in the page: generate a keypair, encapsulate, decapsulate, and watch two parties who exchanged nothing secret arrive at the same 32 bytes. Flip a bit in the ciphertext and decapsulation does not fail — it returns a different key derived from a value only the receiver holds, so a tampering attacker learns nothing from the outcome.
+**The real thing.** A complete ML-KEM implementation (FIPS 203) runs in the page. Two people who have never met need one shared secret over a channel an eavesdropper is reading in full; they cannot simply send it, which is the whole problem.
+
+Running an exchange fills in every value, split into the two groups that matter. Sent in the clear: `t`, the public key; `ρ`, the seed both sides expand into the shared matrix `A`, so `A` never has to be transmitted; and `c`, the scrambled package. Never sent: `s`, the receiver's private key, and the 32-byte shared secret both sides end up holding. That `t` is the same kind of object as the one broken above — a public key with a small secret inside it — differing only in size.
+
+Flipping a bit of the ciphertext on screen shows implicit rejection: decapsulation does not fail or complain, it returns a *different* key derived from a value only the receiver holds, so a tampering attacker learns nothing from the outcome.
 
 It is implemented from scratch with no dependencies, including Keccak, because the Web Crypto API provides no SHA-3 or SHAKE. Correctness is checked against all 54 of NIST's published ACVP vectors across ML-KEM-512, 768 and 1024, including twelve invalid-ciphertext cases.
 

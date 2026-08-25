@@ -211,5 +211,5 @@ export function encaps(ek: Uint8Array, paramSet: ParamName, random: (n: number) 
 
 export function sizes(paramSet: ParamName) {
   const { k, du, dv } = resolve(paramSet);
-  return { ek: 384 * k + 32, dk: 768 * k + 96, c: 32 * (du * k + dv), sharedSecret: 32 };
+  return { k, ek: 384 * k + 32, dk: 768 * k + 96, c: 32 * (du * k + dv), sharedSecret: 32 };
 }

@@ -497,3 +497,14 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
   .poly { padding:4px 6px; }
   .adv-panel.wide .primary-button { max-width:none; }
 }
+
+/* ---- instrument: what crosses the wire, and what never does ---- */
+.wire-group { margin-top:24px; padding:22px; border:1px solid var(--line); }
+.wire-group h4 { margin:0 0 14px; font-size:9px; letter-spacing:.18em; }
+.wire-group.is-public { border-color:rgba(255,197,92,.26); background:rgba(255,197,92,.03); }
+.wire-group.is-public h4 { color:var(--amber); }
+.wire-group.is-private { border-color:rgba(118,240,178,.3); background:rgba(118,240,178,.03); }
+.wire-group.is-private h4 { color:var(--mint-bright); }
+.wire-group .kv>div>span { display:block; }
+.wire-group .kv span em { display:block; text-align:left; margin-top:3px; color:#5d7a75; font-family:Arial,sans-serif; font-size:9px; font-style:normal; font-weight:400; letter-spacing:0; text-transform:none; }
+.kv strong.private { color:var(--coral); }
