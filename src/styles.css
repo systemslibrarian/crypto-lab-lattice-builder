@@ -642,3 +642,16 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
 .scale-bar { height:14px; margin:12px 0 10px; padding:2px; border:1px solid rgba(145,191,180,.25); }
 .scale-bar i { display:block; height:100%; min-width:0; background:linear-gradient(90deg,#377d71,var(--mint-bright)); }
 .run-failed { color:var(--coral); }
+
+/* ---- getting out of a run, and out of a filled-in guess ---- */
+.reset-run { width:100%; margin-top:14px; padding:11px 10px; border:1px solid var(--line); background:transparent; color:#6f8b86; font-size:9px; font-weight:800; letter-spacing:.16em; cursor:pointer; transition:color 150ms ease,border-color 150ms ease,background 150ms ease; }
+.reset-run:hover:not(:disabled) { color:#c3d6d0; border-color:rgba(190,223,216,.35); }
+.reset-run.armed { color:var(--coral); border-color:rgba(255,115,91,.55); background:rgba(255,115,91,.07); }
+.reset-run:disabled { opacity:.35; cursor:default; }
+
+.coef-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-top:16px; }
+.coef-head span { color:#5d7a75; font-size:9px; font-weight:800; letter-spacing:.16em; }
+.clear-guess { padding:4px 10px; border:1px solid var(--line); background:transparent; color:#7c9b96; font-size:8px; font-weight:800; letter-spacing:.16em; cursor:pointer; transition:color 150ms ease,border-color 150ms ease; }
+.clear-guess:hover:not(:disabled) { color:var(--amber); border-color:rgba(255,197,92,.45); }
+.clear-guess:disabled { opacity:.3; cursor:default; }
+.coef-row { margin-top:9px; }

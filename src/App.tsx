@@ -98,6 +98,8 @@ export default function Home() {
   const [best, setBest] = useState<number | null>(null);
   const [shareStatus, setShareStatus] = useState("");
   const [newBest, setNewBest] = useState(false);
+  // Restarting throws away a run, so it asks once rather than acting on a misclick.
+  const [confirmReset, setConfirmReset] = useState(false);
   // Measuring a dot is free and deliberate: hover or focus on a pointer device,
   // tap-to-arm then tap-to-take on touch. Nobody should have to judge by eye on
   // a board that residual jitter can make lie.
@@ -106,6 +108,7 @@ export default function Home() {
 
   const pulseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const soundRef = useRef<Sound | null>(null);
   const alignedRef = useRef(false);
   const gameRef = useRef<HTMLElement | null>(null);
@@ -144,6 +147,7 @@ export default function Home() {
     return () => {
       if (pulseTimer.current) clearTimeout(pulseTimer.current);
       if (flashTimer.current) clearTimeout(flashTimer.current);
+      if (resetTimer.current) clearTimeout(resetTimer.current);
       soundRef.current?.dispose();
     };
   }, []);
@@ -336,12 +340,24 @@ export default function Home() {
     enterLevel(levelIndex + 1, levels);
   }
 
+  function askReset() {
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+    if (confirmReset) {
+      setConfirmReset(false);
+      restart();
+      return;
+    }
+    setConfirmReset(true);
+    resetTimer.current = setTimeout(() => setConfirmReset(false), 4000);
+  }
+
   function restart() {
     setScore(START_SIGNAL);
     setComplete(false);
     setRecords([]);
     setShareStatus("");
     setNewBest(false);
+    setConfirmReset(false);
     enterLevel(0, levels);
   }
 
@@ -354,6 +370,7 @@ export default function Home() {
     setRecords([]);
     setShareStatus("");
     setNewBest(false);
+    setConfirmReset(false);
     enterLevel(0, list);
   }
 
@@ -716,6 +733,13 @@ export default function Home() {
                 </button>
               )}
               <p className="hint-copy">In this game the secret marks where the dials belong — it does not pick the dot. Real ML-KEM keeps a different kind of secret: a short list of small numbers that only the receiver has, and that is enough to strip away the noise hiding the message.</p>
+              <button
+                className={`reset-run ${confirmReset ? "armed" : ""}`}
+                onClick={askReset}
+                disabled={complete}
+              >
+                {confirmReset ? "TAP AGAIN TO CONFIRM — THIS CLEARS THE RUN" : "RESTART THIS RUN"}
+              </button>
               <p className="key-legend">KEYS · <b>← →</b> TWIST · <b>↑ ↓</b> SLANT · <b>SHIFT</b> ×5 · <b>1–8</b> PICK A DOT · <b>H</b> SECRET · <b>M</b> MUTE</p>
             </aside>
           </div>

@@ -29,6 +29,8 @@ The nearest dot is always derived from the level's basis at runtime rather than 
 | `Enter` | Advance to the next field |
 | `M` | Mute or unmute |
 
+There is no keyboard shortcut for restarting: a run is worth more than a stray keypress. **Restart this run** sits under the controls and asks once before it clears anything.
+
 Sound is synthesised in the browser with WebAudio — no audio files and no network requests. The tone rises as the field gets clearer, so the search works by ear as well as by eye. Best scores and the mute preference are stored in `localStorage` and never leave the device.
 
 ## Advanced mode

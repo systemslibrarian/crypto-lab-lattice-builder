@@ -243,6 +243,14 @@ export default function AdvancedMode() {
           <div className="adv-panel">
             <h4>YOUR GUESS AT THE PRIVATE KEY s</h4>
             <p className="adv-note">Click any cell to cycle it between −1, 0 and +1.</p>
+            <div className="coef-head">
+              <span>{coefficientCount} coefficients</span>
+              <button
+                className="clear-guess"
+                onClick={() => setGuess(new Array(coefficientCount).fill(0))}
+                disabled={guess.every((v) => v === 0)}
+              >CLEAR</button>
+            </div>
             <div className="coef-row">
               {guess.map((v, i) => (
                 <button
