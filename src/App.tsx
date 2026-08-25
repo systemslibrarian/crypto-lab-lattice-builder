@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import AdvancedMode from "./AdvancedMode";
+import ExpertMode from "./ExpertMode";
 import { createSound, type Sound } from "./sound";
 import {
   CAMPAIGN_LEVELS,
@@ -694,6 +695,8 @@ export default function Home() {
       </section>
 
       <AdvancedMode />
+
+      <ExpertMode />
 
       <footer>
         <a className="brand" href="#game"><span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>LATTICE / BUILDER</span></a>

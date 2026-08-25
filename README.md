@@ -80,6 +80,27 @@ It is implemented from scratch with no dependencies, including Keccak, because t
 
 > This implementation exists to be looked at. It is not constant time, so it leaks timing information and must not be used to protect anything real.
 
+## Expert mode
+
+The exhibit repeatedly says the secret is "a better description of the same lattice." Expert mode is that sentence made literal.
+
+**A basis is a lens.** One set of dots, two descriptions of it. The secret basis is short and near-orthogonal — vectors of length 30 and 32, 71° apart. The public basis is `U · G` with `det(U) = 1`, so it generates *exactly* the same dots, but its vectors are 302 and 176 long and only **1° apart**. Switching between them on the board changes nothing about the dots, which is the point you can watch.
+
+Through the secret description the eight one-step neighbours include the genuine shortest vector in the lattice, 30.3 — the whole ring fits inside the space the public description crosses in a single step. Through the public description the best of the eight is 126.0, a 4.2× overstatement, and the real answer sits at `3·b₁ − 5·b₂`, nowhere near one step out. Same dots; one lens shows the answer and the other hides it.
+
+**What the secret does.** Babai rounding: write an off-lattice point in a description's own coordinates, round each to a whole number, rebuild. Over 400 targets, the secret description decodes 400/400; the public description manages 134/400 and otherwise lands on a dot hundreds of units away. Same lattice, same targets, same algorithm — only the description differs. That gap is the entire value of a private key.
+
+**Why two dimensions lie.** The eight dots were never arbitrary: they are every non-zero combination of two vectors with coefficients −1, 0 or +1, which is 3² − 1 = 8. The same definition in d dimensions gives 3ᵈ − 1:
+
+| dimensions | one-step neighbours |
+| --- | --- |
+| 2 — the board | 8 |
+| 4 | 80 |
+| 16 | 43,046,720 |
+| 512 — ML-KEM-512 | 10²⁴⁴ |
+
+Turning a bad description into a good one is lattice reduction. In two dimensions it is quick and exact, which is why the trick above is a party piece. As the dimension climbs the best known algorithms cost more than the security level they attack, and that is the bet ML-KEM's parameters are chosen to win.
+
 ## Publish on GitHub Pages
 
 This repository is already configured for the GitHub account and repository name below:
