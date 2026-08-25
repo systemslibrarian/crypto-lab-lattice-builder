@@ -469,6 +469,16 @@ export default function Home() {
           <p>Eight dots ring HOME, the red dot in the middle. Straighten the grid with the two dials until they light up, then take the one nearest HOME — hover or tap any dot to read its exact distance. Easy on a flat board; in a few hundred dimensions nobody knows a fast way, and lattice-based encryption is built on that gap.</p>
         </header>
 
+        <nav className="route-map" aria-label="How far to go">
+          <p className="route-lead">Four levels, each one deeper. Stop wherever you like.</p>
+          <div className="route-cards">
+            <a href="#game"><span className="route-no">01</span><strong>PLAY</strong><em>Three puzzles. Nothing to know first.</em><i>2 min</i></a>
+            <a href="#behind-the-puzzle"><span className="route-no">02</span><strong>THE IDEA</strong><em>Why finding the nearest dot gets hard.</em><i>1 min read</i></a>
+            <a href="#advanced"><span className="route-no">03</span><strong>THE REAL THING</strong><em>Break a real key. Watch ML-KEM run.</em><i>5 min</i></a>
+            <a href="#expert"><span className="route-no">04</span><strong>EXPERT</strong><em>What a secret key actually is.</em><i>5 min</i></a>
+          </div>
+        </nav>
+
         <div className="game-frame">
           <div className="game-hud">
             <div><span>SECTOR</span><strong>{String(levelIndex + 1).padStart(2, "0")} / 0{levels.length}</strong></div>
