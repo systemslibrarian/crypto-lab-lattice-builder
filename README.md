@@ -31,6 +31,32 @@ The nearest dot is always derived from the level's basis at runtime rather than 
 
 Sound is synthesised in the browser with WebAudio — no audio files and no network requests. The tone rises as the field gets clearer, so the search works by ear as well as by eye. Best scores and the mute preference are stored in `localStorage` and never leave the device.
 
+## Advanced mode
+
+Below the game the page stops using an analogy and runs the real thing.
+
+**Break it yourself.** A Module-LWE instance with exactly ML-KEM's shape — public `A` and `t = A·s + e`, secret `s`, small error `e` — at n=4, k=2, q=29, so the secret is eight coefficients and only 6,561 secrets exist. You can set the coefficients by hand and watch the mismatch refuse to budge, then run an exhaustive search that recovers the key in front of you.
+
+The reason nothing guides you is worth stating precisely, because it is the whole basis of the scheme. Grouping all 6,561 candidates by how many coefficients they get right, the mean mismatch is essentially constant — around 23 to 25 whether you have none right or seven of eight — and only collapses, to about 1.7, at the exact answer. Seven-of-eight typically scores *worse* than none. There is no hill to climb, so there is no better move than trying everything.
+
+**Turn it up.** The same construction and the same search at larger n. Times use the search rate your own browser just measured:
+
+| | secrets to try | time to grind them |
+| --- | --- | --- |
+| n=4, q=29 | 6,561 | instant |
+| n=8, q=97 | 1.5 × 10¹¹ | days |
+| n=16, q=257 | 10²² | ~10¹⁰ years |
+| n=32, q=769 | 10⁴⁵ | 10²² × the age of the universe |
+| n=256, q=3329 | 10⁴³³ | 10⁴¹⁰ × the age of the universe |
+
+That last row is ML-KEM-512's actual shape. Brute force is the naive attack rather than the best one — real cryptanalysis uses lattice reduction and does far better than these figures, and is still nowhere near enough; ML-KEM-512 targets roughly the difficulty of an AES-128 key search.
+
+**The real thing.** A complete ML-KEM implementation (FIPS 203) runs in the page: generate a keypair, encapsulate, decapsulate, and watch two parties who exchanged nothing secret arrive at the same 32 bytes. Flip a bit in the ciphertext and decapsulation does not fail — it returns a different key derived from a value only the receiver holds, so a tampering attacker learns nothing from the outcome.
+
+It is implemented from scratch with no dependencies, including Keccak, because the Web Crypto API provides no SHA-3 or SHAKE. Correctness is checked against all 54 of NIST's published ACVP vectors across ML-KEM-512, 768 and 1024, including twelve invalid-ciphertext cases.
+
+> This implementation exists to be looked at. It is not constant time, so it leaks timing information and must not be used to protect anything real.
+
 ## Publish on GitHub Pages
 
 This repository is already configured for the GitHub account and repository name below:
@@ -72,6 +98,7 @@ The static site is generated in `dist/`.
 - Fully static; no backend or database
 - No analytics, cookies, accounts, external fonts, CDNs, or runtime network calls
 - Audio synthesised at runtime; no media assets
+- Cryptography implemented from scratch, no dependencies; randomness from `crypto.getRandomValues`
 - `localStorage` holds only best scores and the mute flag, and degrades silently when blocked
 - Content Security Policy included in `index.html`
 - Keyboard-accessible route selection and reduced-motion support

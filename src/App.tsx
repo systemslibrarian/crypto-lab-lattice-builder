@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import AdvancedMode from "./AdvancedMode";
 import { createSound, type Sound } from "./sound";
 import {
   CAMPAIGN_LEVELS,
@@ -688,9 +689,11 @@ export default function Home() {
 
         <div className="honesty-note">
           <span>MODEL NOTE</span>
-          <p>This is a tactile analogy, not a simulation of ML-KEM. Real ML-KEM uses high-dimensional module-lattice arithmetic and the hardness of learning from noisy relationships—not a literal 2D dot hunt. The game preserves the core intuition: simple hidden structure, deliberate noise, and a secret that changes an overwhelming search into a manageable one.</p>
+          <p>The game above is a tactile analogy, not a simulation of ML-KEM. Real ML-KEM uses high-dimensional module-lattice arithmetic and the hardness of learning from noisy relationships—not a literal 2D dot hunt. The game preserves the core intuition: simple hidden structure, deliberate noise, and a secret that changes an overwhelming search into a manageable one. If you want the thing itself rather than the analogy, it is <a href="#advanced">directly below</a> — the same construction at real parameters, running in this page.</p>
         </div>
       </section>
+
+      <AdvancedMode />
 
       <footer>
         <a className="brand" href="#game"><span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>LATTICE / BUILDER</span></a>
