@@ -64,9 +64,19 @@ export default function ExpertMode() {
   return (
     <section className="expert-section" id="expert">
       <div className="lesson-heading">
-        <p className="eyebrow">EXPERT · WHAT THE SECRET REALLY IS</p>
+        <p className="eyebrow">EXPERT · WHY THE DESCRIPTION MATTERS</p>
         <h2>A basis<br />is a lens.</h2>
-        <p>The exhibit has been saying the secret is “a better description of the same lattice.” This is that sentence, made literal — one set of dots, two ways of naming them, and the difference between seeing the answer and not.</p>
+        <p>One set of dots, two ways of naming them, and the difference between seeing the answer and not. This is what an attacker spends their effort trying to build, and it is why the word “hard” in lattice cryptography means something specific.</p>
+      </div>
+
+      <div className="correction">
+        <h4>FIRST, WHAT THIS IS NOT</h4>
+        <p>
+          An ML-KEM private key is <b>not</b> what this section shows. Its secret is the small list of numbers <b>s</b> you saw in
+          the section above — nothing more exotic. What follows is background: it explains why a lattice problem can be easy or
+          impossible depending on how the lattice is written down, which is the thing an attacker is trying to change and the
+          reason “hard” is a meaningful claim about ML-KEM. Worth understanding; not the shape of the key.
+        </p>
       </div>
 
       <div className="adv-block">
@@ -140,8 +150,8 @@ export default function ExpertMode() {
             {useSecret ? (
               <p className="adv-copy">
                 Short vectors, nearly at right angles. The eight one-step neighbours now include the genuine shortest vector in the
-                whole lattice, <b>{truth.length.toFixed(1)}</b>. You can just look at it. This is what holding the secret buys — not
-                extra dots, a better view of the same ones.
+                whole lattice, <b>{truth.length.toFixed(1)}</b>. You can just look at it. Nothing was added; only the way of
+                naming the dots changed.
               </p>
             ) : (
               <p className="adv-copy">
@@ -158,11 +168,11 @@ export default function ExpertMode() {
       </div>
 
       <div className="adv-block">
-        <div className="adv-head"><span>05 / WHAT THE SECRET DOES</span><h3>Decoding with each description</h3></div>
+        <div className="adv-head"><span>05 / WHAT A GOOD DESCRIPTION BUYS</span><h3>Decoding with each one</h3></div>
         <p className="adv-copy">
-          Knowing a short basis is not a trophy — it is a working tool. Take a point that sits slightly off the lattice, write it in
+          A short description is not a trophy — it is a working tool. Take a point that sits slightly off the lattice, write it in
           a description's own coordinates, round each coordinate to a whole number, and rebuild. With short, near-square vectors that
-          lands on the nearest dot. With long, skewed ones it misses. This is decryption, and it is the same algorithm either way.
+          lands on the nearest dot. With long, skewed ones it misses. Same algorithm either way; only the description differs.
         </p>
         <button className="primary-button" onClick={() => setTrials(400)}>DECODE 400 OFF-LATTICE POINTS<span>→</span></button>
         {decode && (
@@ -183,7 +193,7 @@ export default function ExpertMode() {
             </div>
             <p className="adv-note">
               Same lattice, same targets, same rounding. The only difference is which description does the arithmetic — and the
-              public one lands on a dot hundreds of units away. That gap is the entire value of the private key.
+              long, skewed one lands on a dot hundreds of units away. Anyone able to turn the second description into the first could do this too, which is exactly what an attack on a lattice scheme is trying to achieve.
             </p>
           </>
         )}
@@ -207,8 +217,8 @@ export default function ExpertMode() {
           ))}
         </div>
         <p className="adv-note">
-          This is also why the trick above stops being a party piece. Turning a bad description into a good one is lattice
-          reduction, and in two dimensions it is quick and exact. As the dimension climbs, the best known algorithms cost more than
+          Turning a long, skewed description into a short, square one is called lattice
+          reduction, and it is the main tool in every serious attack on a lattice scheme. In two dimensions it is quick and exact, which is why everything above was a party piece. As the dimension climbs the best known reduction algorithms cost more than
           the security level they are attacking, which is precisely the bet ML-KEM's parameters are chosen to win.
         </p>
       </div>
