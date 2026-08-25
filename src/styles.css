@@ -460,3 +460,40 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
   .kv em { grid-column:1; }
   .coef { width:40px; height:40px; }
 }
+
+/* ---- advanced: the arithmetic has to be on screen ---- */
+.stakes { display:grid; grid-template-columns:.85fr 2.35fr; gap:24px; margin-bottom:52px; padding:24px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.stakes span { color:var(--amber); font-size:9px; font-weight:900; letter-spacing:.2em; }
+.stakes p { max-width:930px; margin:0; color:#93aaa6; font-family:Arial,sans-serif; font-size:14px; line-height:1.75; }
+.stakes b { color:#d8e8e2; font-weight:700; }
+
+.lwe-public { display:grid; gap:20px; }
+.lwe-item { display:grid; gap:7px; }
+.lwe-tag { color:#dce9df; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; letter-spacing:.06em; }
+.lwe-tag em { color:#67847f; font-family:"Arial Narrow",Arial,sans-serif; font-size:9px; font-style:normal; font-weight:700; letter-spacing:.14em; }
+.poly-line { display:flex; flex-wrap:wrap; gap:8px; }
+.poly { display:inline-flex; gap:2px; padding:5px 8px; border:1px solid var(--line); background:rgba(255,255,255,.02); }
+.poly i { min-width:26px; color:#9db3ae; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; font-style:normal; text-align:right; }
+.poly i.small { color:var(--mint-bright); font-weight:700; }
+.poly i.big { color:#7d8f8b; }
+
+.lwe-diff { margin-top:12px; }
+.lwe-diff .poly { border-color:rgba(255,197,92,.24); }
+
+.verdict { display:flex; flex-wrap:wrap; align-items:baseline; gap:12px; margin-top:14px; padding:12px 15px; border:1px solid rgba(255,197,92,.28); background:rgba(255,197,92,.05); }
+.verdict strong { color:var(--amber); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; letter-spacing:.04em; }
+.verdict span { color:#8ea5a0; font-family:Arial,sans-serif; font-size:12px; }
+.verdict.is-key { border-color:rgba(118,240,178,.5); background:rgba(118,240,178,.07); }
+.verdict.is-key strong { color:var(--mint-bright); }
+.verdict.is-key span { color:#b7d4cc; }
+
+.adv-panel.wide { margin-top:24px; }
+.adv-panel.wide .primary-button { max-width:420px; }
+.adv-panel h4.spaced { margin-top:24px; padding-top:18px; border-top:1px solid var(--line); }
+
+@media (max-width:780px) {
+  .stakes { grid-template-columns:1fr; gap:14px; }
+  .poly i { min-width:22px; font-size:11px; }
+  .poly { padding:4px 6px; }
+  .adv-panel.wide .primary-button { max-width:none; }
+}

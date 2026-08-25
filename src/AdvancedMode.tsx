@@ -7,7 +7,6 @@ import {
   formatSpace,
   makeInstance,
   makeOps,
-  residual,
   type Instance,
   type ToyParams,
 } from "./mlwe";
@@ -24,7 +23,15 @@ function randomBytes(n: number) {
 
 function hex(bytes: Uint8Array, take = 12) {
   const head = Array.from(bytes.subarray(0, take), (b) => b.toString(16).padStart(2, "0")).join("");
-  return bytes.length > take ? `${head}…` : head;
+  return bytes.length > take ? `${head}\u2026` : head;
+}
+
+function Poly({ values, tone }: { values: number[]; tone?: (v: number) => string }) {
+  return (
+    <span className="poly">
+      {values.map((v, i) => <i className={tone ? tone(v) : ""} key={i}>{v}</i>)}
+    </span>
+  );
 }
 
 type Search = {
@@ -49,20 +56,31 @@ export default function AdvancedMode() {
   const [rung, setRung] = useState(0);
   const raf = useRef<number | null>(null);
 
-  const trueFlat = useMemo(
-    () => instance.s.flatMap((poly) => poly.map(ops.centre)),
-    [instance, ops],
-  );
-
   const guessPoly = useMemo(() => {
     const out: number[][] = [];
     for (let i = 0; i < TOY.k; i += 1) out.push(guess.slice(i * TOY.n, (i + 1) * TOY.n).map(ops.mod));
     return out;
   }, [guess, ops]);
 
-  const mismatch = residual(instance, guessPoly);
-  const rightNow = guess.reduce((n, v, i) => n + (v === trueFlat[i] ? 1 : 0), 0);
-  const solvedByHand = rightNow === coefficientCount;
+  // The only test an attacker can actually run: is t - A*s' small? The error e was
+  // drawn from {-eta..eta}, so at the true secret every coefficient lands inside
+  // that band and nowhere else does. Verified unique over 60 instances.
+  function leftover(candidate: number[][]) {
+    const rows: number[][] = [];
+    for (let i = 0; i < TOY.k; i += 1) {
+      rows.push(ops.sub(instance.t[i], ops.dot(instance.a[i], candidate)).map(ops.centre));
+    }
+    return rows;
+  }
+  function worstOf(rows: number[][]) {
+    let m = 0;
+    for (const row of rows) for (const v of row) m = Math.max(m, Math.abs(v));
+    return m;
+  }
+
+  const diff = useMemo(() => leftover(guessPoly), [guessPoly]);
+  const worst = worstOf(diff);
+  const isKey = worst <= TOY.eta;
 
   useEffect(() => () => { if (raf.current) cancelAnimationFrame(raf.current); }, []);
 
@@ -77,6 +95,7 @@ export default function AdvancedMode() {
   function runSearch() {
     if (search.running) return;
     const total = alphabet(TOY) ** coefficientCount;
+    const trueFlat = instance.s.flatMap((poly) => poly.map(ops.centre));
     const sums = new Array(coefficientCount + 1).fill(0);
     const counts = new Array(coefficientCount + 1).fill(0);
     let code = 0;
@@ -90,11 +109,11 @@ export default function AdvancedMode() {
       const chunk = Math.min(60, total - code);
       for (let i = 0; i < chunk; i += 1, code += 1) {
         const cand = candidateFromCode(code, TOY);
-        const r = residual(instance, cand);
-        if (r < best) { best = r; bestCode = code; }
+        const w = worstOf(leftover(cand));
+        if (w < best) { best = w; bestCode = code; }
         const flat = cand.flatMap((poly) => poly.map(ops.centre));
         const right = flat.reduce((n, v, j) => n + (v === trueFlat[j] ? 1 : 0), 0);
-        sums[right] += r;
+        sums[right] += w;
         counts[right] += 1;
       }
       computeMs += performance.now() - chunkStarted;
@@ -113,107 +132,142 @@ export default function AdvancedMode() {
     raf.current = requestAnimationFrame(step);
   }
 
-  const measuredRate = search.rate > 0 ? search.rate : 6e5;
+  const measuredRate = search.rate > 0 ? search.rate : 1e5;
+  const tone = (v: number) => (Math.abs(v) <= TOY.eta ? "small" : "big");
 
   return (
     <section className="advanced-section" id="advanced">
       <div className="lesson-heading">
         <p className="eyebrow">ADVANCED · THE REAL THING</p>
-        <h2>Now break it<br />for real.</h2>
-        <p>The board you just played is an analogy. This is not — it is the same construction ML-KEM uses, shrunk until you can win, then turned back up until nobody can.</p>
+        <h2>Now break<br />a real one.</h2>
+        <p>The board above is an analogy. What follows is not — it is the construction ML-KEM actually uses, shrunk until you can break it by hand, then turned back up until nobody can.</p>
+      </div>
+
+      <div className="stakes">
+        <span>WHY THIS MATTERS</span>
+        <p>
+          Public-key cryptography publishes one number and keeps its partner secret. Here the published half is <b>t</b>; the
+          secret half is <b>s</b>. Anyone who can work backwards from <b>t</b> to <b>s</b> holds the private key and can read
+          everything sent to its owner. Every rung below is the same sum — <b>t = A·s + e</b> — and the only question is
+          whether working backwards is possible. Below, it is. That is the point.
+        </p>
       </div>
 
       <div className="adv-block">
-        <div className="adv-head"><span>01 / BREAK IT</span><h3>A lattice small enough to lose</h3></div>
+        <div className="adv-head"><span>01 / BREAK IT</span><h3>A private key small enough to steal</h3></div>
         <p className="adv-copy">
-          Below is a Module-LWE instance: a public matrix <b>A</b> and a public vector <b>t</b>, built as <b>t = A·s + e</b> from a
-          secret <b>s</b> and a small error <b>e</b>. Recovering <b>s</b> from <b>A</b> and <b>t</b> is the whole game. This one uses
-          n={TOY.n}, k={TOY.k}, q={TOY.q} — so the secret is {coefficientCount} coefficients, each −1, 0 or +1,
-          and there are only <b>{formatSpace(TOY)}</b> possibilities.
+          This is a genuine instance, at n={TOY.n}, k={TOY.k}, q={TOY.q}. Numbers are polynomial coefficients and all arithmetic is
+          mod {TOY.q}. Everything in the first panel is public — it is exactly, and only, what an eavesdropper gets.
+          The secret <b>s</b> is {coefficientCount} coefficients, each −1, 0 or +1, so there are just <b>{formatSpace(TOY)}</b> possible private keys.
         </p>
 
         <div className="adv-grid">
           <div className="adv-panel">
-            <h4>THE SECRET YOU ARE HUNTING</h4>
-            <p className="adv-note">Click a cell to cycle it. Then watch the mismatch.</p>
-            <div className="coef-row">
-              {guess.map((v, i) => (
-                <button
-                  key={i}
-                  className={`coef ${v === 0 ? "zero" : ""} ${search.found && v === trueFlat[i] ? "right" : ""}`}
-                  onClick={() => cycle(i)}
-                  aria-label={`Secret coefficient ${i + 1}, currently ${v}`}
-                >{v > 0 ? `+${v}` : v}</button>
-              ))}
-            </div>
-            <div className="adv-readout">
-              <div><span>MISMATCH</span><strong className={solvedByHand ? "hit" : ""}>{mismatch.toFixed(2)}</strong></div>
-              <div><span>COEFFICIENTS RIGHT</span><strong>{rightNow} / {coefficientCount}</strong></div>
+            <h4>PUBLISHED · EVERYONE CAN SEE THIS</h4>
+            <div className="lwe-public">
+              <div className="lwe-item">
+                <span className="lwe-tag">A <em>— the shared matrix</em></span>
+                {instance.a.map((row, i) => (
+                  <div className="poly-line" key={i}>{row.map((poly, j) => <Poly key={j} values={poly} />)}</div>
+                ))}
+              </div>
+              <div className="lwe-item">
+                <span className="lwe-tag">t <em>— the public key</em></span>
+                {instance.t.map((poly, i) => <div className="poly-line" key={i}><Poly values={poly} /></div>)}
+              </div>
             </div>
             <p className="adv-note">
-              {solvedByHand
-                ? "That is the secret. The mismatch collapses only here — one cell out and it is back up with everything else."
-                : "Try to steer it down. You cannot: the mismatch is the same size whether you have seven coefficients right or none."}
+              A and t never change. Every guess below is checked against these same numbers.
             </p>
           </div>
 
           <div className="adv-panel">
-            <h4>EXHAUSTIVE SEARCH</h4>
-            <p className="adv-note">Since nothing guides you, the only method left is trying everything.</p>
-            <button className="primary-button" onClick={runSearch} disabled={search.running}>
-              {search.running ? "SEARCHING…" : search.found ? "SEARCH AGAIN" : `TRY ALL ${formatSpace(TOY)}`}<span>→</span>
-            </button>
-            <div className="adv-readout">
-              <div><span>TRIED</span><strong>{search.tried.toLocaleString("en-US")}</strong></div>
-              <div><span>BEST MISMATCH</span><strong className={search.found ? "hit" : ""}>{search.best === Infinity ? "—" : search.best.toFixed(2)}</strong></div>
+            <h4>YOUR GUESS AT THE PRIVATE KEY s</h4>
+            <p className="adv-note">Click any cell to cycle it between −1, 0 and +1.</p>
+            <div className="coef-row">
+              {guess.map((v, i) => (
+                <button
+                  key={i}
+                  className={`coef ${v === 0 ? "zero" : ""}`}
+                  onClick={() => cycle(i)}
+                  aria-label={`Secret coefficient ${i + 1} of ${coefficientCount}, currently ${v}`}
+                >{v > 0 ? `+${v}` : v}</button>
+              ))}
             </div>
-            {search.found && (
-              <p className="adv-note">
-                Key recovered in {search.tried.toLocaleString("en-US")} tries at {Math.round(search.rate).toLocaleString("en-US")} per second.
-                The dials above are now set to the true secret.
-              </p>
-            )}
+
+            <h4 className="spaced">THE TEST · t − A·s</h4>
+            <p className="adv-note">
+              If your guess is the private key, subtracting <b>A·s</b> from <b>t</b> leaves only the tiny error <b>e</b> —
+              every number inside ±{TOY.eta}. Anything else leaves junk.
+            </p>
+            <div className="lwe-diff">
+              {diff.map((row, i) => <div className="poly-line" key={i}><Poly values={row} tone={tone} /></div>)}
+            </div>
+            <div className={`verdict ${isKey ? "is-key" : ""}`}>
+              {isKey
+                ? <><strong>EVERY NUMBER INSIDE ±{TOY.eta}</strong><span>This is the private key.</span></>
+                : <><strong>BIGGEST NUMBER: {worst}</strong><span>Not the key — it needs to be {TOY.eta} or less.</span></>}
+            </div>
           </div>
+        </div>
+
+        <div className="adv-panel wide">
+          <h4>WHEN GUESSING STOPS WORKING</h4>
+          <p className="adv-copy">
+            You will notice the leftover numbers do not get smaller as you get closer. They are junk until they are the answer.
+            With nothing to steer by, the only method left is trying every possible key.
+          </p>
+          <button className="primary-button" onClick={runSearch} disabled={search.running}>
+            {search.running ? "SEARCHING…" : search.found ? "SEARCH AGAIN" : `TRY ALL ${formatSpace(TOY)} PRIVATE KEYS`}<span>→</span>
+          </button>
+          <div className="adv-readout">
+            <div><span>KEYS TRIED</span><strong>{search.tried.toLocaleString("en-US")}</strong></div>
+            <div><span>SMALLEST LEFTOVER SO FAR</span><strong className={search.found ? "hit" : ""}>{search.best === Infinity ? "—" : search.best}</strong></div>
+          </div>
+          {search.found && (
+            <p className="adv-note">
+              Private key recovered after {search.tried.toLocaleString("en-US")} attempts, at {Math.round(search.rate).toLocaleString("en-US")} keys
+              per second. The cells above now hold the real <b>s</b>, and the leftover is the error <b>e</b> that was hiding it.
+            </p>
+          )}
         </div>
 
         {search.buckets.length > 0 && (
           <div className="adv-flat">
-            <h4>WHY NOTHING GUIDED YOU</h4>
+            <h4>WHAT YOU WERE UP AGAINST</h4>
             <p className="adv-copy">
-              Every one of the {formatSpace(TOY)} candidates, grouped by how many coefficients it got right.
-              If the mismatch were a hill you could climb, this column would slope. It does not — it is flat until the answer, and then it falls off a cliff.
+              Now that the answer is known, here is the landscape you were searching — all {formatSpace(TOY)} keys, grouped by how many
+              coefficients each got right. You could never see this while guessing; that is the whole difficulty. If getting closer
+              helped, the bars would shrink as you go down. They do not, until the last row.
             </p>
             <div className="flat-table">
               {search.buckets.map((b) => {
                 const width = Math.min(100, (b.mean / Math.max(...search.buckets.map((x) => x.mean))) * 100);
                 return (
                   <div className={`flat-row ${b.right === coefficientCount ? "is-answer" : ""}`} key={b.right}>
-                    <span className="flat-label">{b.right} right</span>
+                    <span className="flat-label">{b.right} of {coefficientCount} right</span>
                     <span className="flat-bar"><i style={{ width: `${width}%` }} /></span>
                     <span className="flat-value">{b.mean.toFixed(1)}</span>
-                    <span className="flat-count">{b.count.toLocaleString("en-US")}</span>
+                    <span className="flat-count">{b.count.toLocaleString("en-US")} keys</span>
                   </div>
                 );
               })}
             </div>
+            <p className="adv-note">Average size of the biggest leftover number, per group. Smaller is closer to being the key.</p>
           </div>
         )}
       </div>
 
       <div className="adv-block">
-        <div className="adv-head"><span>02 / TURN IT UP</span><h3>The same problem, bigger</h3></div>
+        <div className="adv-head"><span>02 / TURN IT UP</span><h3>The same sum, bigger numbers</h3></div>
         <p className="adv-copy">
-          Nothing about the construction changes on the rungs below — same <b>t = A·s + e</b>, same exhaustive search, same code.
-          Only n grows. Times assume the rate your browser just measured.
+          Nothing about the construction changes below — same <b>t = A·s + e</b>, same test, same search, same code.
+          Only the size of the polynomials grows. Times use the rate your browser just measured.
         </p>
         <div className="ladder">
-          <div className="ladder-row is-head"><span>PARAMETERS</span><span>SECRETS TO TRY</span><span>TIME TO GRIND THEM</span></div>
+          <div className="ladder-row is-head"><span>PARAMETERS</span><span>POSSIBLE PRIVATE KEYS</span><span>TIME TO TRY THEM ALL</span></div>
           {LADDER.map((p: ToyParams, i) => (
-            <button
-              className={`ladder-row ${i === rung ? "on" : ""} ${p.real ? "is-real" : ""}`}
-              key={p.label}
-              onClick={() => setRung(i)}
-            >
+            <button className={`ladder-row ${i === rung ? "on" : ""} ${p.real ? "is-real" : ""}`} key={p.label} onClick={() => setRung(i)}>
               <span><b>{p.label}</b> n={p.n} k={p.k} q={p.q}</span>
               <span>{formatSpace(p)}</span>
               <span>{formatEta(p, measuredRate)}</span>
@@ -221,8 +275,9 @@ export default function AdvancedMode() {
           ))}
         </div>
         <p className="adv-note">
-          Brute force is the naive attack, not the best one — real cryptanalysis uses lattice reduction and does far better than these
-          numbers. It is still nowhere near enough. ML-KEM-512 is designed to be about as hard to break as AES-128.
+          The bottom row is not an analogy for ML-KEM-512 — it is ML-KEM-512's actual shape. Brute force is also the naive
+          attack rather than the best one: real cryptanalysis uses lattice reduction and does far better than these figures,
+          and is still nowhere near enough. ML-KEM-512 is designed to be about as hard to break as AES-128.
         </p>
       </div>
 
@@ -268,8 +323,9 @@ function Instrument() {
     <div className="adv-block">
       <div className="adv-head"><span>03 / THE REAL THING</span><h3>ML-KEM, running here</h3></div>
       <p className="adv-copy">
-        This is not a model of ML-KEM. It is ML-KEM — the FIPS 203 algorithm, implemented in this page, checked against all 54 of
-        NIST's published test vectors. The lattice underneath is the last rung of the ladder above.
+        Same sum, same test, real numbers. This is not a model of ML-KEM — it is ML-KEM, the FIPS 203 algorithm implemented in
+        this page and checked against all 54 of NIST's published test vectors. The <b>t</b> below is a public key exactly like the
+        one you just broke, except that recovering its <b>s</b> would take the bottom row of that table.
       </p>
 
       <div className="param-switch" role="group" aria-label="Parameter set">

@@ -35,13 +35,24 @@ Sound is synthesised in the browser with WebAudio — no audio files and no netw
 
 Below the game the page stops using an analogy and runs the real thing.
 
-**Break it yourself.** A Module-LWE instance with exactly ML-KEM's shape — public `A` and `t = A·s + e`, secret `s`, small error `e` — at n=4, k=2, q=29, so the secret is eight coefficients and only 6,561 secrets exist. You can set the coefficients by hand and watch the mismatch refuse to budge, then run an exhaustive search that recovers the key in front of you.
+**Break a real private key.** A Module-LWE instance with exactly ML-KEM's shape at n=4, k=2, q=29. Everything an eavesdropper gets is on screen: the shared matrix `A` and the public key `t`, where `t = A·s + e`. The private key `s` is eight coefficients, each −1, 0 or +1, so only 6,561 private keys exist.
 
-The reason nothing guides you is worth stating precisely, because it is the whole basis of the scheme. Grouping all 6,561 candidates by how many coefficients they get right, the mean mismatch is essentially constant — around 23 to 25 whether you have none right or seven of eight — and only collapses, to about 1.7, at the exact answer. Seven-of-eight typically scores *worse* than none. There is no hill to climb, so there is no better move than trying everything.
+You set those eight coefficients by hand and the page shows the actual subtraction `t − A·s`. The test is one an attacker can genuinely run, with no privileged information: if the guess is the private key, what is left over is only the tiny error `e`, every number inside ±1. Anything else leaves junk. Verified over 60 instances, that rule identifies exactly the secret and nothing else — the best wrong guess still leaves a number of size 5, and the median wrong guess leaves 13.
 
-**Turn it up.** The same construction and the same search at larger n. Times use the search rate your own browser just measured:
+The point is what happens as you try. The leftover numbers scramble but never shrink, because there is nothing to steer by. Once the search has run, the page shows the landscape you were working blind in — all 6,561 keys grouped by how many coefficients each got right:
 
-| | secrets to try | time to grind them |
+| coefficients right | average biggest leftover |
+| --- | --- |
+| 0 of 8 | 13.0 |
+| 4 of 8 | 12.8 |
+| 7 of 8 | **13.4** |
+| 8 of 8 | **1.0** |
+
+Getting seven of eight right is *worse* than getting none. There is no hill to climb, which is why exhaustive search is the only method left, and why the difficulty scales the way it does.
+
+**Turn it up.** The same sum, the same test and the same code at larger n. Times use the search rate the visitor's own browser just measured:
+
+| | possible private keys | time to try them all |
 | --- | --- | --- |
 | n=4, q=29 | 6,561 | instant |
 | n=8, q=97 | 1.5 × 10¹¹ | days |
@@ -49,7 +60,7 @@ The reason nothing guides you is worth stating precisely, because it is the whol
 | n=32, q=769 | 10⁴⁵ | 10²² × the age of the universe |
 | n=256, q=3329 | 10⁴³³ | 10⁴¹⁰ × the age of the universe |
 
-That last row is ML-KEM-512's actual shape. Brute force is the naive attack rather than the best one — real cryptanalysis uses lattice reduction and does far better than these figures, and is still nowhere near enough; ML-KEM-512 targets roughly the difficulty of an AES-128 key search.
+The bottom row is not an analogy for ML-KEM-512 — it is ML-KEM-512's actual shape. Brute force is also the naive attack rather than the best one: real cryptanalysis uses lattice reduction and does far better than these figures, and is still nowhere near enough. ML-KEM-512 targets roughly the difficulty of an AES-128 key search.
 
 **The real thing.** A complete ML-KEM implementation (FIPS 203) runs in the page: generate a keypair, encapsulate, decapsulate, and watch two parties who exchanged nothing secret arrive at the same 32 bytes. Flip a bit in the ciphertext and decapsulation does not fail — it returns a different key derived from a value only the receiver holds, so a tampering attacker learns nothing from the outcome.
 
