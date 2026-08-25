@@ -469,6 +469,16 @@ export default function Home() {
           <p>Eight dots ring HOME, the red dot in the middle. Straighten the grid with the two dials until they light up, then take the one nearest HOME — hover or tap any dot to read its exact distance. Easy on a flat board; in a few hundred dimensions nobody knows a fast way, and lattice-based encryption is built on that gap.</p>
         </header>
 
+        <div className="orientation">
+          <span>WHAT THIS IS ABOUT</span>
+          <p>
+            <b>ML-KEM is the new standard for two computers to agree on the same secret key while somebody records every message
+            they send.</b> It is built to hold up even against a quantum computer, and it does that by hiding the secret inside a
+            problem about grids of dots. The puzzle below builds the intuition for that problem. No background needed — it is a
+            two-minute game about finding which dot is nearest.
+          </p>
+        </div>
+
         <nav className="route-map" aria-label="How far to go">
           <p className="route-lead">Four levels, each one deeper. Stop wherever you like.</p>
           <div className="route-cards">

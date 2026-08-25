@@ -154,7 +154,7 @@ export default function AdvancedMode() {
     <section className="advanced-section" id="advanced">
       <div className="lesson-heading">
         <p className="eyebrow">ADVANCED · THE REAL THING</p>
-        <h2>Now break<br />a real one.</h2>
+        <h2>Now break<br />a small one.</h2>
         <p>The board above is an analogy. What follows is not — it is the construction ML-KEM actually uses, shrunk until you can break it by hand, then turned back up until nobody can.</p>
       </div>
 
@@ -198,6 +198,19 @@ export default function AdvancedMode() {
           This is a genuine instance, at n={TOY.n}, k={TOY.k}, q={TOY.q}. Numbers are polynomial coefficients and all arithmetic is
           mod {TOY.q}. Everything in the first panel is public — it is exactly, and only, what an eavesdropper gets.
           The secret <b>s</b> is {coefficientCount} coefficients, each −1, 0 or +1, so there are just <b>{formatSpace(TOY)}</b> possible private keys.
+        </p>
+
+        <div className="symbols">
+          <div><b>A</b><span>a public recipe for mixing numbers</span><i className="pub">PUBLIC</i></div>
+          <div><b>s</b><span>a small secret — this is the private key</span><i className="pri">PRIVATE</i></div>
+          <div><b>e</b><span>a small random error that hides the secret</span><i className="pri">PRIVATE</i></div>
+          <div><b>t</b><span>the published result of <b>A·s + e</b></span><i className="pub">PUBLIC</i></div>
+        </div>
+        <p className="adv-note">
+          Two conventions worth knowing before you read the numbers. <b>Mod {TOY.q}</b> means everything wraps around after {TOY.q - 1},
+          like a clock face with {TOY.q} positions, so the page sometimes shows a number as −3 rather than {TOY.q - 3} — the same
+          position, counted the short way round. And the “learning” in Learning-With-Errors has nothing to do with machine
+          learning: it means working out a hidden secret from equations that have been deliberately made slightly wrong.
         </p>
 
         <div className="adv-grid">

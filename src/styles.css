@@ -600,3 +600,33 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
 .correction h4 { margin:0 0 10px; color:var(--coral); font-size:9px; letter-spacing:.2em; }
 .correction p { max-width:900px; margin:0; color:#b9c9c4; font-family:Arial,sans-serif; font-size:14px; line-height:1.7; }
 .correction b { color:#e6f2ed; font-weight:700; }
+
+/* ---- orientation: what this is, before anything else ---- */
+.orientation { display:grid; grid-template-columns:.85fr 2.35fr; gap:24px; margin:0 0 30px; padding:22px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.orientation span { color:var(--amber); font-size:9px; font-weight:900; letter-spacing:.2em; }
+.orientation p { max-width:930px; margin:0; color:#9db3ae; font-family:Arial,sans-serif; font-size:15px; line-height:1.72; }
+.orientation b { color:#e6f2ed; font-weight:700; }
+
+/* ---- what each symbol means, before any raw numbers ---- */
+.symbols { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; margin:0 0 18px; background:var(--line); border:1px solid var(--line); }
+.symbols>div { display:grid; gap:7px; padding:15px 16px; background:#0a171c; }
+.symbols b { color:var(--mint-bright); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:17px; }
+.symbols span { color:#9db3ae; font-family:Arial,sans-serif; font-size:12.5px; line-height:1.5; }
+.symbols span b { font-size:12.5px; color:#dceee7; }
+.symbols i { justify-self:start; padding:2px 7px; font-size:8px; font-style:normal; font-weight:800; letter-spacing:.16em; }
+.symbols i.pub { color:var(--amber); border:1px solid rgba(255,197,92,.4); }
+.symbols i.pri { color:var(--coral); border:1px solid rgba(255,115,91,.4); }
+
+/* ---- teaching text was being set at instrumentation sizes ---- */
+.adv-note { font-size:13.5px; color:#8aa39e; }
+.hint-copy { font-size:11.5px; line-height:1.6; }
+.clarity-block p { font-size:11.5px; line-height:1.6; }
+.bridge-cols p { font-size:13.5px; }
+.adv-copy { font-size:14.5px; }
+
+@media (max-width:900px) { .symbols { grid-template-columns:1fr 1fr; } }
+@media (max-width:780px) {
+  .orientation { grid-template-columns:1fr; gap:12px; }
+  .orientation p { font-size:14.5px; }
+  .symbols { grid-template-columns:1fr; }
+}
