@@ -151,4 +151,6 @@ The static site is generated in `dist/`.
 
 ## License
 
-No software license has been selected. Add the license you want before inviting others to reuse or modify the code.
+[MIT](LICENSE) © 2026 Paul Clark.
+
+One caveat worth repeating outside the exhibit: the ML-KEM implementation in `src/keccak.ts`, `src/mlkem-poly.ts` and `src/mlkem.ts` is correct against NIST's published vectors but is written to be read, not to be deployed. It makes no attempt to run in constant time, so it leaks timing information and must not be used to protect anything real. Use a reviewed library for that.
