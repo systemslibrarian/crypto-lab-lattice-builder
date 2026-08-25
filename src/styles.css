@@ -508,3 +508,15 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
 .wire-group .kv>div>span { display:block; }
 .wire-group .kv span em { display:block; text-align:left; margin-top:3px; color:#5d7a75; font-family:Arial,sans-serif; font-size:9px; font-style:normal; font-weight:400; letter-spacing:0; text-transform:none; }
 .kv strong.private { color:var(--coral); }
+
+/* ---- the bridge from the 2D board to Module-LWE ---- */
+.bridge { margin-bottom:56px; padding:26px; border:1px solid rgba(118,240,178,.24); background:rgba(118,240,178,.03); }
+.bridge h4 { margin:0 0 20px; color:var(--mint-bright); font-size:9px; letter-spacing:.2em; }
+.bridge-cols { display:grid; grid-template-columns:1fr 1fr; gap:26px; margin-bottom:22px; }
+.bridge-tag { display:block; margin-bottom:8px; color:var(--amber); font-size:8px; font-weight:900; letter-spacing:.2em; }
+.bridge-cols p { margin:0; color:#9db3ae; font-family:Arial,sans-serif; font-size:13px; line-height:1.7; }
+.bridge-cols b { color:#dceee7; font-weight:700; }
+.bridge-cols em { color:#c6dbd4; font-style:italic; }
+.bridge .adv-copy { margin-bottom:0; padding-top:18px; border-top:1px solid var(--line); }
+.adv-panel h4 em { color:#67847f; font-family:Arial,sans-serif; font-size:9px; font-style:normal; font-weight:400; letter-spacing:0; text-transform:none; }
+@media (max-width:780px) { .bridge-cols { grid-template-columns:1fr; gap:20px; } .bridge { padding:20px; } }

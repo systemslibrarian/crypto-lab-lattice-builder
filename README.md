@@ -35,6 +35,14 @@ Sound is synthesised in the browser with WebAudio — no audio files and no netw
 
 Below the game the page stops using an analogy and runs the real thing.
 
+**How the game relates to ML-KEM.** The board is a *lattice*: every dot is a whole-number combination of two vectors. The game asks which dot is nearest HOME, which is the Shortest Vector Problem.
+
+ML-KEM does not ask that exact question. It hides its key by parking a point just off a lattice: `t = A·s + e` means `t` is not a lattice point but sits a short hop from one, displaced by the small error `e`. Recovering `s` means working out *which lattice point `t` is nearest to*. Same lattice, same act of finding the nearest dot, asked about a different spot.
+
+Measured on the instance the page ships: `t` sits 1.73 from its nearest lattice point — exactly ‖e‖ — while the second nearest is 8.54 away and a typical one is 23.64. It hugs one point and is nowhere near the rest.
+
+Being precise about the difference: the board is SVP, ML-KEM rests on Module Learning-With-Errors, and those are cousins rather than the same problem. What ties them together is not hand-waving — the best known attacks on LWE work by building a lattice out of `A` and `t` and hunting for a short vector in it. Finding short vectors *is* the attack, which is why the exhibit spends its time teaching you to look for one.
+
 **Break a real private key.** A Module-LWE instance with exactly ML-KEM's shape at n=4, k=2, q=29. Everything an eavesdropper gets is on screen: the shared matrix `A` and the public key `t`, where `t = A·s + e`. The private key `s` is eight coefficients, each −1, 0 or +1, so only 6,561 private keys exist.
 
 You set those eight coefficients by hand and the page shows the actual subtraction `t − A·s`. The test is one an attacker can genuinely run, with no privileged information: if the guess is the private key, what is left over is only the tiny error `e`, every number inside ±1. Anything else leaves junk. Verified over 60 instances, that rule identifies exactly the secret and nothing else — the best wrong guess still leaves a number of size 5, and the median wrong guess leaves 13.

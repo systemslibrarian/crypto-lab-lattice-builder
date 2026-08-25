@@ -54,6 +54,7 @@ export default function AdvancedMode() {
   const [guess, setGuess] = useState<number[]>(() => new Array(coefficientCount).fill(0));
   const [search, setSearch] = useState<Search>(IDLE);
   const [rung, setRung] = useState(0);
+  const [geometry, setGeometry] = useState<{ nearest: number; second: number; typical: number } | null>(null);
   const raf = useRef<number | null>(null);
 
   const guessPoly = useMemo(() => {
@@ -83,6 +84,20 @@ export default function AdvancedMode() {
   const isKey = worst <= TOY.eta;
 
   useEffect(() => () => { if (raf.current) cancelAnimationFrame(raf.current); }, []);
+
+  // How far is t from the lattice? Measured after first paint so it never blocks
+  // render. This is the number that makes the link to the game concrete.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const norm = (rows: number[][]) => Math.sqrt(rows.reduce((a, r) => a + r.reduce((b, x) => b + x * x, 0), 0));
+      const total = alphabet(TOY) ** coefficientCount;
+      const all: number[] = [];
+      for (let c = 0; c < total; c += 1) all.push(norm(leftover(candidateFromCode(c, TOY))));
+      all.sort((a, b) => a - b);
+      setGeometry({ nearest: all[0], second: all[1], typical: all[Math.floor(total / 2)] });
+    }, 0);
+    return () => clearTimeout(id);
+  }, []);
 
   function cycle(index: number) {
     setGuess((g) => {
@@ -153,6 +168,30 @@ export default function AdvancedMode() {
         </p>
       </div>
 
+      <div className="bridge">
+        <h4>HOW THIS RELATES TO THE GAME UPSTAIRS</h4>
+        <div className="bridge-cols">
+          <div>
+            <span className="bridge-tag">THE BOARD</span>
+            <p>Every dot was a whole-number combination of two vectors — that set of dots is a <b>lattice</b>. You were asked: <b>which dot is nearest HOME?</b> In two dimensions you answer by looking.</p>
+          </div>
+          <div>
+            <span className="bridge-tag">DOWN HERE</span>
+            <p>Every combination of <b>A</b>'s entries is a dot of a lattice too. The public key <b>t</b> is <em>not</em> one of those dots — it is a spot parked just off one, pushed there by the error <b>e</b>. The question is: <b>which dot is nearest t?</b> Answer it and you have <b>s</b>.</p>
+          </div>
+        </div>
+        <p className="adv-copy">
+          Same lattice, same act, different spot. That is the whole connection, and it is why measuring distances was the right instinct upstairs.
+          {geometry && <> In this instance <b>t</b> sits <b>{geometry.nearest.toFixed(1)}</b> from its nearest dot — that gap is exactly the size of <b>e</b> — while the second nearest is <b>{geometry.second.toFixed(1)}</b> away and a typical one is <b>{geometry.typical.toFixed(1)}</b>. It is hugging one dot and nowhere near the rest.</>}
+        </p>
+        <p className="adv-note">
+          Being precise: the board upstairs is the Shortest Vector Problem, ML-KEM rests on Module Learning-With-Errors, and those
+          are cousins rather than the same problem. What ties them together is not hand-waving — the best known attacks on
+          Learning-With-Errors work by building a lattice out of <b>A</b> and <b>t</b> and hunting for a short vector in it. Finding
+          short vectors is the attack. That is why this exhibit spends its time teaching you to look for one.
+        </p>
+      </div>
+
       <div className="adv-block">
         <div className="adv-head"><span>01 / BREAK IT</span><h3>A private key small enough to steal</h3></div>
         <p className="adv-copy">
@@ -195,7 +234,7 @@ export default function AdvancedMode() {
               ))}
             </div>
 
-            <h4 className="spaced">THE TEST · t − A·s</h4>
+            <h4 className="spaced">THE TEST · t − A·s <em>— how far t sits from this dot</em></h4>
             <p className="adv-note">
               If your guess is the private key, subtracting <b>A·s</b> from <b>t</b> leaves only the tiny error <b>e</b> —
               every number inside ±{TOY.eta}. Anything else leaves junk.
