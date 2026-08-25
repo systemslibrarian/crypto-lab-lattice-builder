@@ -641,3 +641,4 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
 .rung-payout .adv-note { margin:0; }
 .scale-bar { height:14px; margin:12px 0 10px; padding:2px; border:1px solid rgba(145,191,180,.25); }
 .scale-bar i { display:block; height:100%; min-width:0; background:linear-gradient(90deg,#377d71,var(--mint-bright)); }
+.run-failed { color:var(--coral); }

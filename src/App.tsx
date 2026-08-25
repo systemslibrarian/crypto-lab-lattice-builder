@@ -108,6 +108,7 @@ export default function Home() {
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const soundRef = useRef<Sound | null>(null);
   const alignedRef = useRef(false);
+  const gameRef = useRef<HTMLElement | null>(null);
   const pointerTypeRef = useRef<string>("mouse");
 
   const level = levels[levelIndex];
@@ -255,9 +256,14 @@ export default function Home() {
       );
     } else {
       const length = Math.round(latticeLength(vector, level.basisU, level.basisV));
+      if (wrongPicks.some((pick) => pick[0] === vector[0] && pick[1] === vector[1])) {
+        setArmed(null);
+        setFeedback(`Already taken — that dot is ${length} from HOME. One of the others is closer.`);
+        return;
+      }
       setWrongPicks((list) => [...list, vector]);
       setArmed(null);
-      setScore((value) => value - wrongCost);
+      setScore((value) => Math.max(0, value - wrongCost));
       play((sound) => sound.wrong());
       setFeedback(`That dot is ${length} from HOME. Its distance stays on the board — one of the others is closer.`);
     }
@@ -283,7 +289,7 @@ export default function Home() {
     if (pulseTimer.current) clearTimeout(pulseTimer.current);
     setPulse(true);
     setHintUsed(true);
-    setScore((value) => value - HINT_COST);
+    setScore((value) => Math.max(0, value - HINT_COST));
     play((sound) => sound.hint());
     setFeedback("The secret marks where both dials belong. Finding the nearest dot is still yours to do.");
     pulseTimer.current = setTimeout(() => setPulse(false), 2200);
@@ -306,6 +312,7 @@ export default function Home() {
   }
 
   function finishRun() {
+    if (complete) return;
     setComplete(true);
     play((sound) => sound.finish());
     buzz(30);
@@ -390,6 +397,21 @@ export default function Home() {
     function onKey(event: KeyboardEvent) {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target as HTMLElement | null;
+      const section = gameRef.current;
+      if (!section) return;
+
+      // The board only owns these keys while the reader is actually at the board.
+      // Focus inside another section, or a board scrolled off screen, means the
+      // keystroke belongs to the browser — otherwise arrow keys stop scrolling
+      // the page and H quietly spends signal on a field nobody is looking at.
+      const focused = target !== null && target !== document.body && target !== document.documentElement;
+      if (focused) {
+        if (!section.contains(target)) return;
+      } else {
+        const box = section.getBoundingClientRect();
+        if (box.bottom <= 0 || box.top >= window.innerHeight) return;
+      }
+
       const inSlider = target?.tagName === "INPUT";
       const key = event.key.toLowerCase();
 
@@ -399,7 +421,9 @@ export default function Home() {
         return;
       }
       if (complete) {
-        if (key === "enter") {
+        // Autorepeat from the keypress that finished the run must not restart it,
+        // and Enter belongs to whatever control has focus.
+        if (key === "enter" && !event.repeat && !target?.closest("button, a[href], input, select, textarea, [tabindex]")) {
           event.preventDefault();
           restart();
         }
@@ -411,6 +435,7 @@ export default function Home() {
         return;
       }
       if (key === "enter" && solved) {
+        if (target?.closest("button, a[href], [tabindex]")) return;
         event.preventDefault();
         nextLevel();
         return;
@@ -463,7 +488,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <section className="game-section" id="game">
+      <section className="game-section" id="game" ref={gameRef}>
         <header className="game-intro">
           <p className="eyebrow">CRYPTOGRAPHY LAB · THREE FIELDS · TWO MINUTES</p>
           <h1>Eight dots.<br />Take the nearest.</h1>
@@ -680,7 +705,7 @@ export default function Home() {
               </div>
 
               {solved ? (
-                <button className="primary-button" onClick={nextLevel}>
+                <button className="primary-button" onClick={nextLevel} disabled={complete}>
                   {levelIndex === levels.length - 1 ? "FINISH RUN" : "ENTER NEXT FIELD"}<span>→</span>
                 </button>
               ) : (

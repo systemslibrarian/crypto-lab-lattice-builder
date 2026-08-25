@@ -18,6 +18,11 @@ const SEED = 20260825;
 
 function randomBytes(n: number) {
   const b = new Uint8Array(n);
+  // Universally available in practice, but an unguarded throw here would leave
+  // the button looking broken with nothing on screen to explain it.
+  if (typeof crypto === "undefined" || typeof crypto.getRandomValues !== "function") {
+    throw new Error("this browser provides no secure random number generator");
+  }
   crypto.getRandomValues(b);
   return b;
 }
@@ -118,7 +123,7 @@ export default function AdvancedMode() {
     let best = Infinity;
     let bestCode = -1;
     let computeMs = 0;
-    setSearch({ ...IDLE, running: true });
+    setSearch((prev) => ({ ...IDLE, running: true, rate: prev.rate }));
 
     const step = () => {
       const chunkStarted = performance.now();
@@ -148,7 +153,8 @@ export default function AdvancedMode() {
     raf.current = requestAnimationFrame(step);
   }
 
-  const measuredRate = search.rate > 0 ? search.rate : 1e5;
+  const measured = search.rate > 0;
+  const measuredRate = measured ? search.rate : 1e5;
   const tone = (v: number) => (Math.abs(v) <= TOY.eta ? "small" : "big");
 
   return (
@@ -315,7 +321,7 @@ export default function AdvancedMode() {
         <div className="adv-head"><span>02 / TURN IT UP</span><h3>The same sum, bigger numbers</h3></div>
         <p className="adv-copy">
           Nothing about the construction changes below — same <b>t = A·s + e</b>, same test, same search, same code.
-          Only the size of the polynomials grows. Times use the rate your browser just measured.
+          Only the size of the polynomials grows. Times use the rate your browser {measured ? "measured" : "would be assumed to manage until you run the search above"}.
         </p>
         <div className="ladder">
           <div className="ladder-row is-head"><span>PARAMETERS</span><span>POSSIBLE PRIVATE KEYS</span><span>TIME TO TRY THEM ALL</span></div>
@@ -336,7 +342,7 @@ export default function AdvancedMode() {
               <h4>AT THIS SIZE</h4>
               <p className="adv-note">
                 The secret is {p.n * p.k} slots, each holding one of {alphabet(p)} values — <b>{formatSpace(p)}</b> possible keys.
-                At the {Math.round(measuredRate).toLocaleString("en-US")} keys per second your browser measured, one second of
+                At the {Math.round(measuredRate).toLocaleString("en-US")} keys per second your browser {measured ? "measured" : "is assumed to manage"}, one second of
                 searching covers this much of it:
               </p>
               <div className="scale-bar"><i style={{ width: `${Math.max(percent, 0)}%` }} /></div>
@@ -376,23 +382,34 @@ function Instrument() {
   const [paramSet, setParamSet] = useState<ParamName>("ML-KEM-512");
   const [session, setSession] = useState<Session | null>(null);
   const [tampered, setTampered] = useState<{ k: Uint8Array; at: number } | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
 
   function run() {
-    const t0 = performance.now();
-    const { ek, dk } = keyGen(paramSet, randomBytes);
-    const { c, k } = encaps(ek, paramSet, randomBytes);
-    const kReceiver = decaps(dk, c, paramSet);
-    setSession({ paramSet, ek, dk, c, kSender: k, kReceiver, ms: performance.now() - t0 });
-    setTampered(null);
+    try {
+      const t0 = performance.now();
+      const { ek, dk } = keyGen(paramSet, randomBytes);
+      const { c, k } = encaps(ek, paramSet, randomBytes);
+      const kReceiver = decaps(dk, c, paramSet);
+      setSession({ paramSet, ek, dk, c, kSender: k, kReceiver, ms: performance.now() - t0 });
+      setTampered(null);
+      setFailure(null);
+    } catch (error) {
+      setFailure(error instanceof Error ? error.message : String(error));
+    }
   }
 
   // Tamper with the ciphertext that is actually on screen, not a fresh exchange.
   function tamper() {
     if (!session) return;
-    const bad = Uint8Array.from(session.c);
-    const at = Math.floor(Math.random() * bad.length);
-    bad[at] ^= 1;
-    setTampered({ k: decaps(session.dk, bad, session.paramSet), at });
+    try {
+      const bad = Uint8Array.from(session.c);
+      const at = Math.floor(Math.random() * bad.length);
+      bad[at] ^= 1;
+      setTampered({ k: decaps(session.dk, bad, session.paramSet), at });
+      setFailure(null);
+    } catch (error) {
+      setFailure(error instanceof Error ? error.message : String(error));
+    }
   }
 
   const size = sizes(paramSet);
@@ -415,7 +432,7 @@ function Instrument() {
 
       <div className="param-switch" role="group" aria-label="Parameter set">
         {(["ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"] as ParamName[]).map((p) => (
-          <button key={p} className={p === paramSet ? "on" : ""} onClick={() => { setParamSet(p); setSession(null); setTampered(null); }} aria-pressed={p === paramSet}>{p}</button>
+          <button key={p} className={p === paramSet ? "on" : ""} onClick={() => { setParamSet(p); setSession(null); setTampered(null); setFailure(null); }} aria-pressed={p === paramSet}>{p}</button>
         ))}
       </div>
 
@@ -423,6 +440,10 @@ function Instrument() {
         <button className="primary-button" onClick={run}>{session ? "RUN IT AGAIN" : "RUN THE EXCHANGE"}<span>→</span></button>
         <button className="ghost-button" onClick={tamper} disabled={!session}>FLIP ONE BIT OF THE CIPHERTEXT</button>
       </div>
+
+      {failure && (
+        <p className="adv-note run-failed">This exchange could not run: {failure}.</p>
+      )}
 
       {!session && <p className="adv-note">Nothing has run yet. Press the button and every value below is filled in from a real exchange.</p>}
 
