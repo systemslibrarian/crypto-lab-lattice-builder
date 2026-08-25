@@ -474,7 +474,7 @@ export default function Home() {
           <div className="route-cards">
             <a href="#game"><span className="route-no">01</span><strong>PLAY</strong><em>Three puzzles. Nothing to know first.</em><i>2 min</i></a>
             <a href="#behind-the-puzzle"><span className="route-no">02</span><strong>THE IDEA</strong><em>Why finding the nearest dot gets hard.</em><i>1 min read</i></a>
-            <a href="#advanced"><span className="route-no">03</span><strong>THE REAL THING</strong><em>Break a real key. Watch ML-KEM run.</em><i>5 min</i></a>
+            <a href="#advanced"><span className="route-no">03</span><strong>THE REAL THING</strong><em>Break a real key, then watch the real encryption run.</em><i>5 min</i></a>
             <a href="#expert"><span className="route-no">04</span><strong>EXPERT</strong><em>What a secret key actually is.</em><i>5 min</i></a>
           </div>
         </nav>
@@ -679,7 +679,7 @@ export default function Home() {
                   <span className="pulse-glyph">⌁</span>
                 </button>
               )}
-              <p className="hint-copy">In this game the secret marks where the dials belong — it does not pick the dot. In the real thing it is a better description of the same lattice, one that makes short vectors easy to find.</p>
+              <p className="hint-copy">In this game the secret marks where the dials belong — it does not pick the dot. In the real thing it is a better way of describing the same grid of dots — one that makes the short steps easy to spot.</p>
               <p className="key-legend">KEYS · <b>← →</b> TWIST · <b>↑ ↓</b> SLANT · <b>SHIFT</b> ×5 · <b>1–8</b> PICK A DOT · <b>H</b> SECRET · <b>M</b> MUTE</p>
             </aside>
           </div>
@@ -690,7 +690,7 @@ export default function Home() {
         <div className="lesson-heading">
           <p className="eyebrow">BEHIND THE PUZZLE</p>
           <h2>The shape was always there.</h2>
-          <p>Cryptography can hide a clean structure under distortion and noise. Without the secret, finding the shortest vector becomes a search nobody knows how to do quickly.</p>
+          <p>Cryptography can hide a clean structure under distortion and noise. Without the secret, finding the shortest step becomes a search nobody knows how to do quickly.</p>
         </div>
         <div className="lesson-grid">
           <article><span className="lesson-icon"><i className="dots-icon" /></span><p>01 / DISTORT</p><h3>The bad view</h3><p>Turn a clean grid, lean it over, bury it in jitter, and the same structure is still in there. Only your view of it changed.</p></article>
