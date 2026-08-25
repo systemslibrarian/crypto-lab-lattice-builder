@@ -166,6 +166,7 @@ export default function Home() {
       setFlash(true);
       play((sound) => sound.lock());
       buzz(18);
+      setFeedback("LOCK. The rows run straight and the eight dots are live. Hover or tap any dot to read its exact distance from HOME, then take the smallest.");
       if (flashTimer.current) clearTimeout(flashTimer.current);
       flashTimer.current = setTimeout(() => setFlash(false), 760);
     }
@@ -491,8 +492,8 @@ export default function Home() {
 
         <div className="game-frame">
           <div className="game-hud">
-            <div><span>SECTOR</span><strong>{String(levelIndex + 1).padStart(2, "0")} / 0{levels.length}</strong></div>
-            <div className="progress-track" aria-label={`Sector ${levelIndex + 1} of ${levels.length}`}>
+            <div><span>FIELD</span><strong>{String(levelIndex + 1).padStart(2, "0")} / 0{levels.length}</strong></div>
+            <div className="progress-track" aria-label={`Field ${levelIndex + 1} of ${levels.length}`}>
               {levels.map((item, index) => (
                 <span className={index < levelIndex || (index === levelIndex && solved) ? "done" : index === levelIndex ? "active" : ""} key={`${item.codename}-${index}`} />
               ))}
@@ -633,7 +634,7 @@ export default function Home() {
 
               <div className="instruction-strip">
                 <div className={!aligned ? "current" : "complete-step"}><span>1</span><p><strong>STRAIGHTEN</strong> Work both dials until the eight dots light up.</p></div>
-                <div className={aligned && !solved ? "current" : solved ? "complete-step" : ""}><span>2</span><p><strong>{aligned || solved ? "NEAREST" : "NEAREST · LOCKED"}</strong> Tap the lit dot closest to HOME, the red centre dot.</p></div>
+                <div className={aligned && !solved ? "current" : solved ? "complete-step" : ""}><span>2</span><p><strong>{aligned || solved ? "NEAREST" : "NEAREST · NOT YET"}</strong> Tap the lit dot closest to HOME, the red centre dot.</p></div>
               </div>
 
               <div className="controls">

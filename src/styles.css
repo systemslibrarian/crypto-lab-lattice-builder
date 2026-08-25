@@ -630,3 +630,14 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
   .orientation p { font-size:14.5px; }
   .symbols { grid-template-columns:1fr; }
 }
+
+/* the honest reason two descriptions are the same lattice */
+.change-of-basis { display:grid; gap:5px; margin-top:12px; padding:12px 14px; border:1px solid rgba(118,240,178,.24); background:rgba(118,240,178,.04); }
+.change-of-basis span { color:var(--mint-bright); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; letter-spacing:.03em; }
+
+/* selecting a ladder rung now pays out instead of just tinting */
+.rung-payout { margin-top:20px; padding:18px 20px; border:1px solid var(--line); background:rgba(255,255,255,.015); }
+.rung-payout h4 { margin:0 0 8px; color:var(--amber); font-size:9px; letter-spacing:.2em; }
+.rung-payout .adv-note { margin:0; }
+.scale-bar { height:14px; margin:12px 0 10px; padding:2px; border:1px solid rgba(145,191,180,.25); }
+.scale-bar i { display:block; height:100%; min-width:0; background:linear-gradient(90deg,#377d71,var(--mint-bright)); }

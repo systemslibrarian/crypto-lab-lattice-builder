@@ -11,8 +11,8 @@ export type Basis = { name: string; u: Vec; v: Vec };
 
 export const SECRET: Basis = { name: "SECRET", u: [30, 4], v: [6, 31] };
 
-// U = [[7,5],[4,3]], det = 1
-const U: [Vec, Vec] = [[7, 5], [4, 3]];
+export const U: [Vec, Vec] = [[7, 5], [4, 3]];      // det = 21 - 20 = 1
+export const U_INV: [Vec, Vec] = [[3, -5], [-4, 7]]; // integer inverse, so it works both ways
 export const PUBLIC: Basis = {
   name: "PUBLIC",
   u: [U[0][0] * SECRET.u[0] + U[0][1] * SECRET.v[0], U[0][0] * SECRET.u[1] + U[0][1] * SECRET.v[1]],
@@ -58,7 +58,13 @@ export function trueShortest(b: Basis, reach = 40) {
       if (!best || l < best.length) best = { vec, ij: [i, j], length: l };
     }
   }
-  return best!;
+  // Both a vector and its antipode are shortest. Return the one on the same side
+  // of HOME as the coefficients quoted in the copy, or the board contradicts the text.
+  const r = best!;
+  if (r.vec[0] < 0 || (r.vec[0] === 0 && r.vec[1] < 0)) {
+    return { vec: [-r.vec[0], -r.vec[1]] as Vec, ij: [-r.ij[0], -r.ij[1]] as Vec, length: r.length };
+  }
+  return r;
 }
 
 // Babai rounding: write the target in the basis's own coordinates, round each to
@@ -84,11 +90,27 @@ export type DecodeTrial = {
   publicOk: boolean;
 };
 
+function hash32(x: number) {
+  let a = (x + 0x9e3779b9) >>> 0;
+  a ^= a >>> 16; a = Math.imul(a, 0x21f0aaad);
+  a ^= a >>> 15; a = Math.imul(a, 0x735a2d97);
+  a ^= a >>> 15;
+  return a >>> 0;
+}
+
 export function decodeTrial(seedIndex: number): DecodeTrial {
-  const i = ((seedIndex * 7) % 9) - 4;
-  const j = ((seedIndex * 13) % 9) - 4;
+  // One distinct target per index: a 20x20 block of lattice points, each pushed
+  // off by a hashed offset that is never zero. The previous version ran every
+  // component through mod 9, so 400 trials measured the same nine points.
+  const cell = ((seedIndex % 400) + 400) % 400;
+  const i = (cell % 20) - 10;
+  const j = Math.floor(cell / 20) - 10;
   const truth = combine(SECRET, i, j);
-  const offset: Vec = [((seedIndex * 5) % 9) - 4, ((seedIndex * 11) % 9) - 4];
+  const r = hash32(seedIndex);
+  let ox = (r % 13) - 6;
+  let oy = (Math.floor(r / 13) % 13) - 6;
+  if (ox === 0 && oy === 0) { ox = 3; oy = -2; }
+  const offset: Vec = [ox, oy];
   const target: Vec = [truth[0] + offset[0], truth[1] + offset[1]];
   const s = babai(SECRET, target).point;
   const p = babai(PUBLIC, target).point;

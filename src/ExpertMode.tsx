@@ -12,6 +12,8 @@ import {
   neighbourCount,
   neighbours,
   shortestVisible,
+  U,
+  U_INV,
   trueShortest,
   type Basis,
   type Vec,
@@ -143,9 +145,15 @@ export default function ExpertMode() {
               <div><span>ANGLE BETWEEN THE VECTORS</span><strong>{angleBetween(basis).toFixed(0)}°</strong></div>
             </div>
             <p className="adv-note">
-              Lengths {len(basis.u).toFixed(0)} and {len(basis.v).toFixed(0)}. Both descriptions have determinant {Math.abs(det(basis))},
-              which is what proves they cover the same dots — the cells have identical area, so nothing is missed.
+              Lengths {len(basis.u).toFixed(0)} and {len(basis.v).toFixed(0)}, and each cell covers the same area, {Math.abs(det(basis))}.
+              Equal area alone would not make them the same set of dots. What does is that each description converts into the other
+              in whole numbers, both ways — no fractions anywhere, so neither can reach a dot the other cannot:
             </p>
+            <div className="change-of-basis">
+              {useSecret
+                ? <><span>g₁ = {U_INV[0][0]}·b₁ − {Math.abs(U_INV[0][1])}·b₂</span><span>g₂ = −{Math.abs(U_INV[1][0])}·b₁ + {U_INV[1][1]}·b₂</span></>
+                : <><span>b₁ = {U[0][0]}·g₁ + {U[0][1]}·g₂</span><span>b₂ = {U[1][0]}·g₁ + {U[1][1]}·g₂</span></>}
+            </div>
 
             {useSecret ? (
               <p className="adv-copy">

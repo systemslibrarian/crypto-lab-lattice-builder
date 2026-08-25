@@ -7,6 +7,7 @@ import {
   formatSpace,
   makeInstance,
   makeOps,
+  spaceLog10,
   type Instance,
   type ToyParams,
 } from "./mlwe";
@@ -326,6 +327,29 @@ export default function AdvancedMode() {
             </button>
           ))}
         </div>
+        {(() => {
+          const p = LADDER[rung];
+          const logFraction = Math.log10(measuredRate) - spaceLog10(p);
+          const percent = Math.min(100, 10 ** logFraction * 100);
+          return (
+            <div className="rung-payout">
+              <h4>AT THIS SIZE</h4>
+              <p className="adv-note">
+                The secret is {p.n * p.k} slots, each holding one of {alphabet(p)} values — <b>{formatSpace(p)}</b> possible keys.
+                At the {Math.round(measuredRate).toLocaleString("en-US")} keys per second your browser measured, one second of
+                searching covers this much of it:
+              </p>
+              <div className="scale-bar"><i style={{ width: `${Math.max(percent, 0)}%` }} /></div>
+              <p className="adv-note">
+                {percent >= 100
+                  ? "All of it, with time to spare."
+                  : percent < 0.000001
+                    ? "The bar is drawn to scale. There is nothing to draw."
+                    : `${percent.toPrecision(2)}% of it.`}
+              </p>
+            </div>
+          );
+        })()}
         <p className="adv-note">
           The bottom row is not an analogy for ML-KEM-512 — it is ML-KEM-512's actual shape. Brute force is also the naive
           attack rather than the best one: real cryptanalysis uses lattice reduction and does far better than these figures,
