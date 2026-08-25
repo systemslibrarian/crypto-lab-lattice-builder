@@ -20,7 +20,7 @@ const PROJECTION_TOL = 5;
 const START_SIGNAL = 3600;
 const HINT_COST = 220;
 const SITE_URL = "https://systemslibrarian.github.io/crypto-lab-lattice-builder/";
-const OPENING_LINE = "Move both controls until the field settles.";
+const OPENING_LINE = "The eight dots around HOME stay dark until the rows run straight. Work both dials — FIELD CLARITY has to reach LOCK.";
 
 function formatScore(score: number) {
   return Math.max(0, score).toString().padStart(4, "0");
@@ -96,14 +96,20 @@ export default function Home() {
   const [best, setBest] = useState<number | null>(null);
   const [shareStatus, setShareStatus] = useState("");
   const [newBest, setNewBest] = useState(false);
+  // Measuring a dot is free and deliberate: hover or focus on a pointer device,
+  // tap-to-arm then tap-to-take on touch. Nobody should have to judge by eye on
+  // a board that residual jitter can make lie.
+  const [preview, setPreview] = useState<Vector | null>(null);
+  const [armed, setArmed] = useState<Vector | null>(null);
 
   const pulseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const soundRef = useRef<Sound | null>(null);
   const alignedRef = useRef(false);
+  const pointerTypeRef = useRef<string>("mouse");
 
   const level = levels[levelIndex];
-  const bestKey = mode === "daily" ? `lb:daily:${dayKey}` : "lb:best:campaign";
+  const bestKey = mode === "daily" ? `lb:daily:v2:${dayKey}` : "lb:best:campaign:v2";
 
   const twistError = Math.abs(twist - level.targetTwist);
   const projectionError = Math.abs(projection - level.targetProjection);
@@ -195,6 +201,10 @@ export default function Home() {
   );
   const origin = pointMap.get("0,0") ?? { x: 300, y: 280 };
 
+  function sameVector(a: Vector | null, b: Vector) {
+    return a !== null && a[0] === b[0] && a[1] === b[1];
+  }
+
   function clarityFor(nextTwist: number, nextProjection: number) {
     return Math.max(
       0,
@@ -213,7 +223,7 @@ export default function Home() {
     if (next === twist) return;
     setTwist(next);
     play((sound) => sound.tick(clarityFor(next, projection)));
-    setFeedback("Watch the rows—not any single dot.");
+    setFeedback("TWIST turns the whole field. Hunt the angle where the rows run dead straight.");
   }
 
   function updateProjection(value: number) {
@@ -222,7 +232,7 @@ export default function Home() {
     if (next === projection) return;
     setProjection(next);
     play((sound) => sound.tick(clarityFor(twist, next)));
-    setFeedback("Compress the fog until the spacing feels even.");
+    setFeedback("SLANT takes the lean out of the columns. Hunt spacing that repeats, row after row.");
   }
 
   function chooseVector(vector: Vector) {
@@ -230,22 +240,39 @@ export default function Home() {
     if (sameDirection(vector, shortest)) {
       const earned = pickBonus;
       setSolved(true);
+      setArmed(null);
       setScore((value) => value + earned);
       setRecords((list) => [...list, { wrong: wrongPicks.length, hint: hintUsed, perfect: perfectLock }]);
       play((sound) => sound.correct(perfectLock));
       buzz(perfectLock ? [12, 40, 22] : 24);
       setFeedback(
         perfectLock
-          ? `Perfect lock. Dead centre on both controls—full ${earned} signal.`
-          : `Clean hit. +${earned} signal. Tighten the lock next time for more.`,
+          ? `Nearest dot, and dead centre on both dials. +${earned} signal. Nothing in this grid sits closer to HOME.`
+          : `Nearest dot — nothing in this grid sits closer to HOME. +${earned} signal. A tighter lock pays more.`,
       );
     } else {
       const length = Math.round(latticeLength(vector, level.basisU, level.basisV));
       setWrongPicks((list) => [...list, vector]);
+      setArmed(null);
       setScore((value) => value - wrongCost);
       play((sound) => sound.wrong());
-      setFeedback(`That ray measures ${length}. It stays on the board—use it to judge the rest.`);
+      setFeedback(`That dot is ${length} from HOME. Its distance stays on the board — one of the others is closer.`);
     }
+  }
+
+  function measureOrChoose(vector: Vector, index: number, length: number) {
+    if (!aligned || solved || complete) {
+      setFeedback("Not yet — straighten the rows first. The eight dots light up at LOCK.");
+      return;
+    }
+    if (pointerTypeRef.current === "mouse" || sameVector(armed, vector)) {
+      chooseVector(vector);
+      return;
+    }
+    setArmed(vector);
+    setPreview(vector);
+    buzz(8);
+    setFeedback(`DOT ${index + 1} · ${length} FROM HOME · TAP AGAIN TO TAKE IT`);
   }
 
   function usePulse() {
@@ -255,7 +282,7 @@ export default function Home() {
     setHintUsed(true);
     setScore((value) => value - HINT_COST);
     play((sound) => sound.hint());
-    setFeedback("The hidden hint is lighting the way—for a moment.");
+    setFeedback("The secret marks where both dials belong. Finding the nearest dot is still yours to do.");
     pulseTimer.current = setTimeout(() => setPulse(false), 2200);
   }
 
@@ -269,6 +296,8 @@ export default function Home() {
     setHintUsed(false);
     setPulse(false);
     setFlash(false);
+    setPreview(null);
+    setArmed(null);
     alignedRef.current = false;
     setFeedback(OPENING_LINE);
   }
@@ -410,7 +439,7 @@ export default function Home() {
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  const statusLabel = solved ? "VECTOR FOUND" : aligned ? "FIELD SETTLED" : "READ THE PATTERN";
+  const statusLabel = solved ? "NEAREST DOT FOUND" : aligned ? "PICK THE NEAREST DOT" : "ROWS STILL BENT";
 
   return (
     <main className="site-shell">
@@ -433,9 +462,9 @@ export default function Home() {
 
       <section className="game-section" id="game">
         <header className="game-intro">
-          <p className="eyebrow">CRYPTO LAB · EXPERIMENT 176</p>
-          <h1>Find the signal<br />in the noise.</h1>
-          <p>Twist the view. Settle the field. Then trust your eyes and choose the shortest jump.</p>
+          <p className="eyebrow">CRYPTOGRAPHY LAB · THREE FIELDS · TWO MINUTES</p>
+          <h1>Eight dots.<br />Take the nearest.</h1>
+          <p>Eight dots ring HOME, the red dot in the middle. Straighten the grid with the two dials until they light up, then take the one nearest HOME — hover or tap any dot to read its exact distance. Easy on a flat board; in a few hundred dimensions nobody knows a fast way, and lattice-based encryption is built on that gap.</p>
         </header>
 
         <div className="game-frame">
@@ -456,13 +485,13 @@ export default function Home() {
             <section className="field-panel" aria-label="Interactive lattice field">
               <div className="field-label">
                 <span>{level.codename}{mode === "daily" ? ` · ${dayKey}` : ""}</span>
-                <span>{aligned ? "PATTERN LOCKED" : "SEARCHING"}</span>
+                <span>{solved ? "STEP 2 / 2 · DONE" : aligned ? "STEP 2 / 2 · TAP THE DOT NEAREST HOME" : "STEP 1 / 2 · STRAIGHTEN THE ROWS"}</span>
               </div>
               <svg
                 className={`lattice-board ${aligned ? "is-aligned" : ""} ${flash ? "is-snapping" : ""}`}
                 viewBox="0 0 600 560"
                 role="img"
-                aria-label={aligned ? "Aligned dot field. Choose the shortest ray from the center." : "A noisy dot field that responds to the two controls."}
+                aria-label={aligned ? "The rows are straight. Eight dots surround the home dot — choose the one nearest to it." : "A bent dot field. Use the twist and slant dials to straighten its rows."}
               >
                 <defs>
                   <radialGradient id="fieldGlow" cx="50%" cy="47%" r="52%">
@@ -502,51 +531,51 @@ export default function Home() {
 
                 {flash && <circle className="snap-ring" cx="300" cy="280" r="60" aria-hidden="true" />}
 
-                {aligned && (
-                  <g className="vector-layer">
-                    {CANDIDATES.map((vector, index) => {
-                      const endpoint = pointMap.get(`${vector[0]},${vector[1]}`);
-                      if (!endpoint) return null;
-                      const isHint = pulse && sameDirection(vector, shortest);
-                      const isWrong = wrongPicks.some((pick) => pick[0] === vector[0] && pick[1] === vector[1]);
-                      const isCorrect = solved && sameDirection(vector, shortest);
-                      const isShown = revealed.has(directionKey(vector));
-                      const dx = endpoint.x - origin.x;
-                      const dy = endpoint.y - origin.y;
-                      const span = Math.hypot(dx, dy) || 1;
-                      return (
-                        <g
-                          className={`vector-choice ${isHint ? "is-hint" : ""} ${isWrong ? "is-wrong" : ""} ${isCorrect ? "is-correct" : ""}`}
-                          key={`${vector[0]}-${vector[1]}`}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`Route ${index + 1}${isShown ? `, length ${Math.round(latticeLength(vector, level.basisU, level.basisV))}` : ""}`}
-                          onClick={() => chooseVector(vector)}
-                          onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); chooseVector(vector); } }}
-                        >
-                          <line x1={origin.x} y1={origin.y} x2={endpoint.x} y2={endpoint.y} />
-                          <circle className="hit-area" cx={endpoint.x} cy={endpoint.y} r="18" />
-                          <circle className="route-node" cx={endpoint.x} cy={endpoint.y} r="9" />
-                          <text className="route-index" x={endpoint.x} y={endpoint.y + 3}>{index + 1}</text>
-                          {isShown && (
-                            <text className="ray-length" x={endpoint.x + (dx / span) * 26} y={endpoint.y + (dy / span) * 26 + 3}>
-                              {Math.round(latticeLength(vector, level.basisU, level.basisV))}
-                            </text>
-                          )}
-                        </g>
-                      );
-                    })}
-                    <circle className="origin-pulse" cx={origin.x} cy={origin.y} r="17" />
-                    <circle className="origin-core" cx={origin.x} cy={origin.y} r="7" />
-                  </g>
-                )}
+                <g className={`vector-layer ${aligned ? "" : "is-dormant"}`}>
+                  {CANDIDATES.map((vector, index) => {
+                    const endpoint = pointMap.get(`${vector[0]},${vector[1]}`);
+                    if (!endpoint) return null;
+                    const isWrong = wrongPicks.some((pick) => pick[0] === vector[0] && pick[1] === vector[1]);
+                    const isCorrect = solved && sameDirection(vector, shortest);
+                    const isLit = sameVector(preview, vector) || sameVector(armed, vector);
+                    const length = Math.round(latticeLength(vector, level.basisU, level.basisV));
+                    const isShown = aligned && (revealed.has(directionKey(vector)) || isLit);
+                    const dx = endpoint.x - origin.x;
+                    const dy = endpoint.y - origin.y;
+                    const span = Math.hypot(dx, dy) || 1;
+                    return (
+                      <g
+                        className={`vector-choice ${isLit ? "is-lit" : ""} ${isWrong ? "is-wrong" : ""} ${isCorrect ? "is-correct" : ""}`}
+                        key={`${vector[0]}-${vector[1]}`}
+                        role="button"
+                        aria-hidden={!aligned}
+                        tabIndex={aligned ? 0 : -1}
+                        aria-label={`Dot ${index + 1} of 8, ${length} from home`}
+                        onPointerDown={(event) => { pointerTypeRef.current = event.pointerType || "mouse"; }}
+                        onPointerEnter={(event) => { if ((event.pointerType || "mouse") === "mouse") setPreview(vector); }}
+                        onPointerLeave={() => setPreview(null)}
+                        onFocus={() => setPreview(vector)}
+                        onBlur={() => setPreview(null)}
+                        onClick={() => measureOrChoose(vector, index, length)}
+                        onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); chooseVector(vector); } }}
+                      >
+                        <line x1={origin.x} y1={origin.y} x2={endpoint.x} y2={endpoint.y} />
+                        <circle className="hit-area" cx={endpoint.x} cy={endpoint.y} r="26" />
+                        <circle className="route-node" cx={endpoint.x} cy={endpoint.y} r="9" />
+                        <text className="route-index" x={endpoint.x} y={endpoint.y + 3}>{index + 1}</text>
+                        {isShown && (
+                          <text className="ray-length" x={endpoint.x + (dx / span) * 26} y={endpoint.y + (dy / span) * 26 + 3}>
+                            {length}
+                          </text>
+                        )}
+                      </g>
+                    );
+                  })}
+                  <circle className="origin-pulse" cx={origin.x} cy={origin.y} r="17" />
+                  <circle className="origin-core" cx={origin.x} cy={origin.y} r="7.5" />
+                  <text className="origin-label" x={origin.x} y={origin.y + 26}>HOME</text>
+                </g>
 
-                {!aligned && (
-                  <g className="search-reticle" aria-hidden="true">
-                    <path d="M276 280h-18M342 280h-18M300 256v-18M300 322v-18" />
-                    <circle cx="300" cy="280" r="29" />
-                  </g>
-                )}
               </svg>
 
               <div className={`field-message ${aligned ? "ready" : ""}`} aria-live="polite">
@@ -581,40 +610,49 @@ export default function Home() {
               <p className="mission-brief">{level.brief}</p>
 
               <div className="instruction-strip">
-                <div className={!aligned ? "current" : "complete-step"}><span>1</span><p><strong>SETTLE</strong> Make the rows clean and even.</p></div>
-                <div className={aligned && !solved ? "current" : solved ? "complete-step" : ""}><span>2</span><p><strong>CHOOSE</strong> Tap the shortest ray from center.</p></div>
+                <div className={!aligned ? "current" : "complete-step"}><span>1</span><p><strong>STRAIGHTEN</strong> Work both dials until the eight dots light up.</p></div>
+                <div className={aligned && !solved ? "current" : solved ? "complete-step" : ""}><span>2</span><p><strong>{aligned || solved ? "NEAREST" : "NEAREST · LOCKED"}</strong> Tap the lit dot closest to HOME, the red centre dot.</p></div>
               </div>
 
               <div className="controls">
                 <label>
                   <span className="control-title"><b>TWIST</b><output>{twist > 0 ? "+" : ""}{twist}°</output></span>
                   <span className="range-wrap">
-                    <input type="range" min="-30" max="30" step="1" value={twist} aria-label="Twist the field" onChange={(event) => updateTwist(Number(event.target.value))} />
+                    <input type="range" min="-30" max="30" step="1" value={twist} aria-label="Twist — turn the whole field" onChange={(event) => updateTwist(Number(event.target.value))} />
                     {pulse && <i className="target-notch" style={{ left: `${((level.targetTwist + 30) / 60) * 100}%` }} />}
                   </span>
-                  <small>TURN THE VIEW · ← →</small>
+                  <small>TURN THE WHOLE FIELD · ← →</small>
                 </label>
 
                 <label>
-                  <span className="control-title"><b>DEPTH</b><output>{projection}%</output></span>
+                  <span className="control-title"><b>SLANT</b><output>{projection}%</output></span>
                   <span className="range-wrap">
-                    <input type="range" min="0" max="100" step="1" value={projection} aria-label="Compress the field depth" onChange={(event) => updateProjection(Number(event.target.value))} />
+                    <input type="range" min="0" max="100" step="1" value={projection} aria-label="Slant — straighten the lean of the field" onChange={(event) => updateProjection(Number(event.target.value))} />
                     {pulse && <i className="target-notch" style={{ left: `${level.targetProjection}%` }} />}
                   </span>
-                  <small>COMPRESS THE FOG · ↑ ↓</small>
+                  <small>STRAIGHTEN THE LEAN · ↑ ↓</small>
                 </label>
               </div>
 
               <div className="clarity-block">
                 <div className="clarity-label"><span>FIELD CLARITY</span><strong>{Math.round(clarity)}%</strong></div>
-                <div className="clarity-meter"><i style={{ width: `${clarity}%` }} /></div>
+                <span className="clarity-mark">LOCK →</span>
+                <div className={`clarity-meter ${aligned ? "is-locked" : ""}`}><i style={{ width: `${clarity}%` }} /></div>
                 {aligned && !solved ? (
                   <p className="payout-line">
                     LOCK QUALITY {Math.round(precision * 100)}% · A CLEAN PICK PAYS <b>+{pickBonus}</b>
                     {wrongPicks.length > 0 ? ` · NEXT MISS −${wrongCost}` : ""}
                   </p>
+                ) : solved ? (
+                  <p>Locked, and taken. Nothing in this grid sits closer to HOME.</p>
                 ) : (
-                  <p>{clarity > 70 ? "Almost there. Make smaller moves." : "Follow the rows as they begin to agree."}</p>
+                  <p>{clarity > 70
+                    ? "Close. Small moves now — LOCK is the mark on the meter."
+                    : twistError > TWIST_TOL && projectionError > PROJECTION_TOL
+                      ? "Both dials are still out. Moving one alone will never reach LOCK."
+                      : twistError > TWIST_TOL
+                        ? "SLANT is in. TWIST still is not."
+                        : "TWIST is in. SLANT still is not."}</p>
                 )}
               </div>
 
@@ -625,12 +663,12 @@ export default function Home() {
               ) : (
                 <button className="pulse-button" onClick={usePulse} disabled={pulse}>
                   <span className="key-cap">H</span>
-                  <span><strong>USE HIDDEN HINT</strong><small>−{HINT_COST} SIGNAL</small></span>
+                  <span><strong>USE THE SECRET</strong><small>−{HINT_COST} SIGNAL</small></span>
                   <span className="pulse-glyph">⌁</span>
                 </button>
               )}
-              <p className="hint-copy">A hidden hint makes the search easy—but a little less rewarding.</p>
-              <p className="key-legend">KEYS · <b>← →</b> TWIST · <b>↑ ↓</b> DEPTH · <b>SHIFT</b> ×5 · <b>1–8</b> RAY · <b>H</b> HINT · <b>M</b> MUTE</p>
+              <p className="hint-copy">In this game the secret marks where the dials belong — it does not pick the dot. In the real thing it is a better description of the same lattice, one that makes short vectors easy to find.</p>
+              <p className="key-legend">KEYS · <b>← →</b> TWIST · <b>↑ ↓</b> SLANT · <b>SHIFT</b> ×5 · <b>1–8</b> PICK A DOT · <b>H</b> SECRET · <b>M</b> MUTE</p>
             </aside>
           </div>
         </div>
@@ -640,12 +678,12 @@ export default function Home() {
         <div className="lesson-heading">
           <p className="eyebrow">BEHIND THE PUZZLE</p>
           <h2>The shape was always there.</h2>
-          <p>Cryptography can hide a clean structure under distortion and noise. Without the right hint, finding the useful short route becomes a huge search.</p>
+          <p>Cryptography can hide a clean structure under distortion and noise. Without the secret, finding the shortest vector becomes a search nobody knows how to do quickly.</p>
         </div>
         <div className="lesson-grid">
-          <article><span className="lesson-icon"><i className="dots-icon" /></span><p>01 / DISTORT</p><h3>Scatter the view</h3><p>A regular pattern becomes difficult to read when many tiny shifts pile up.</p></article>
-          <article><span className="lesson-icon"><i className="route-icon" /></span><p>02 / SEARCH</p><h3>Find the short route</h3><p>Short connections are easy to spot here. Add dimensions, and the choices explode.</p></article>
-          <article><span className="lesson-icon"><i className="key-icon" /></span><p>03 / UNLOCK</p><h3>Use the hidden hint</h3><p>The secret does not remove the noise. It gives you a better way to navigate it.</p></article>
+          <article><span className="lesson-icon"><i className="dots-icon" /></span><p>01 / DISTORT</p><h3>The bad view</h3><p>Turn a clean grid, lean it over, bury it in jitter, and the same structure is still in there. Only your view of it changed.</p></article>
+          <article><span className="lesson-icon"><i className="route-icon" /></span><p>02 / SEARCH</p><h3>Find the nearest dot</h3><p>Two vectors generate every dot on that board. HOME is where both sit at zero, and the dot you took is the shortest vector the grid allows without being HOME — that is the Shortest Vector Problem. Here you read it in a glance. In the hundreds of dimensions real schemes use there is nothing to look at, and no known method is fast. That gap is the whole bet.</p></article>
+          <article><span className="lesson-icon"><i className="key-icon" /></span><p>03 / UNLOCK</p><h3>The secret</h3><p>In this game the secret marks where the dials belong. In the real thing it is a better description of the same lattice — one that makes short vectors easy to find. Same lattice, easier view.</p></article>
         </div>
 
         <div className="honesty-note">
@@ -656,7 +694,7 @@ export default function Home() {
 
       <footer>
         <a className="brand" href="#game"><span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>LATTICE / BUILDER</span></a>
-        <p>A playable introduction to lattice-based cryptography.</p>
+        <p>A playable introduction to the Shortest Vector Problem.</p>
         <a href="#game">RUN IT AGAIN ↑</a>
       </footer>
     </main>

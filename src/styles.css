@@ -104,9 +104,6 @@ button, a, input[type="range"] { -webkit-tap-highlight-color: transparent; }
 .is-aligned .lattice-lines line { stroke:rgba(153,232,207,.2); }
 .lattice-points circle { fill:#b6d8ce; transition:all 170ms ease; }
 .is-aligned .lattice-points circle { fill:#c4f2dc; filter:url(#softGlow); }
-.search-reticle path,.search-reticle circle { fill:none; stroke:rgba(255,197,92,.48); stroke-width:1; stroke-dasharray:3 6; }
-.search-reticle circle { animation:reticle 3s ease-in-out infinite; transform-origin:300px 280px; }
-@keyframes reticle { 50% { transform:scale(1.17); opacity:.45; } }
 
 .vector-choice { cursor:pointer; outline:none; }
 .vector-choice line { stroke:rgba(255,197,92,.42); stroke-width:2; stroke-dasharray:3 5; transition:all 180ms ease; }
@@ -114,8 +111,8 @@ button, a, input[type="range"] { -webkit-tap-highlight-color: transparent; }
 .vector-choice .route-node { fill:var(--amber); stroke:#071216; stroke-width:3; transition:all 180ms ease; }
 .vector-choice:hover line,.vector-choice:focus line { stroke:#ffe0a5; stroke-width:4; }
 .vector-choice:hover .route-node,.vector-choice:focus .route-node { r:12; fill:#ffe0a5; }
-.vector-choice.is-hint line,.vector-choice.is-correct line { stroke:var(--mint-bright); stroke-width:5; stroke-dasharray:none; filter:url(#softGlow); }
-.vector-choice.is-hint .route-node,.vector-choice.is-correct .route-node { fill:var(--mint-bright); r:12; }
+.vector-choice.is-correct line { stroke:var(--mint-bright); stroke-width:5; stroke-dasharray:none; filter:url(#softGlow); }
+.vector-choice.is-correct .route-node { fill:var(--mint-bright); r:12; }
 .vector-choice.is-wrong line { stroke:var(--coral); }
 .vector-choice.is-wrong .route-node { fill:var(--coral); }
 .origin-pulse { fill:none; stroke:var(--coral); stroke-width:1.5; opacity:.7; transform-origin:center; animation:originPulse 1.8s ease-out infinite; }
@@ -137,14 +134,14 @@ button, a, input[type="range"] { -webkit-tap-highlight-color: transparent; }
 .mission-brief { min-height:42px; margin:20px 0 24px; color:#94aba7; font-family:Arial,sans-serif; font-size:13px; line-height:1.55; }
 
 .instruction-strip { margin:0 0 30px; display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--line); }
-.instruction-strip>div { min-height:62px; padding:12px 11px; display:flex; gap:9px; opacity:.4; }
+.instruction-strip>div { min-height:62px; padding:12px 11px; display:flex; gap:9px; opacity:.65; }
 .instruction-strip>div+div { border-left:1px solid var(--line); }
 .instruction-strip>div.current { opacity:1; background:rgba(255,197,92,.05); }
 .instruction-strip>div.complete-step { opacity:.7; background:rgba(118,240,178,.05); }
 .instruction-strip span { width:18px; height:18px; display:grid; place-items:center; flex:0 0 18px; border:1px solid currentColor; color:var(--amber); font-size:8px; font-weight:800; }
 .complete-step span { color:var(--mint-bright); }
-.instruction-strip p { margin:0; color:#8ea5a0; font-family:Arial,sans-serif; font-size:9px; line-height:1.45; }
-.instruction-strip strong { display:block; color:#e8eee5; font-family:"Arial Narrow",Arial,sans-serif; font-size:9px; letter-spacing:.11em; }
+.instruction-strip p { margin:0; color:#9db3ae; font-family:Arial,sans-serif; font-size:12px; line-height:1.45; }
+.instruction-strip strong { display:block; color:#e8eee5; font-family:"Arial Narrow",Arial,sans-serif; font-size:11px; letter-spacing:.11em; }
 
 .controls { display:grid; gap:28px; }
 .controls label { display:block; }
@@ -317,4 +314,60 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
   .sound-toggle::first-letter { font-size:11px; }
   .score-readout em { font-size:8px; }
   .glyph-row { font-size:19px; }
+}
+
+/* ---- the eight dots exist from the first frame ----
+   The reported bug in one line: for the whole of step 1 the objects every
+   instruction names were not in the DOM. Dormant spokes give nothing away —
+   their positions are already drawn as ordinary dots, and their distances are
+   meaningless until the rows are straight. */
+.vector-layer.is-dormant .vector-choice { cursor:default; }
+.vector-layer.is-dormant .vector-choice line { stroke:rgba(255,197,92,.14); stroke-width:1; stroke-dasharray:2 7; }
+.vector-layer.is-dormant .route-node { r:4.5; fill:none; stroke:rgba(255,197,92,.3); stroke-width:1.5; }
+.vector-layer.is-dormant .route-index,.vector-layer.is-dormant .ray-length { display:none; }
+.vector-layer.is-dormant .hit-area { pointer-events:none; }
+.vector-layer.is-dormant .origin-pulse { animation:none; opacity:.4; }
+
+/* HOME: "nearest" means nothing until you know what it is measured from. */
+.origin-label { fill:var(--coral); font-family:"Arial Narrow",Arial,sans-serif; font-size:9px; font-weight:800; letter-spacing:.2em; text-anchor:middle; pointer-events:none; }
+.is-dormant .origin-label { fill:rgba(255,115,91,.6); }
+
+/* Measuring one dot is free and deliberate — hover, focus, or first tap. */
+.vector-choice.is-lit line { stroke:#ffe0a5; stroke-width:3; }
+.vector-choice.is-lit .route-node { fill:#ffe0a5; r:11; }
+.vector-choice.is-lit .ray-length { fill:#ffe0a5; font-size:13px; }
+
+/* FIELD CLARITY was a percentage of nothing. Mark the pass line, and only
+   light the bar for real once both dials are actually inside tolerance. */
+.clarity-meter { position:relative; }
+.clarity-meter::after { content:""; position:absolute; top:-3px; bottom:-3px; left:91%; width:1px; background:rgba(118,240,178,.55); }
+.clarity-mark { display:block; margin:0 0 4px; color:#5d7a75; font-size:8px; font-weight:800; letter-spacing:.18em; text-align:right; }
+.clarity-meter.is-locked i { background:linear-gradient(90deg,var(--mint-bright),#c9ffe4); box-shadow:0 0 14px rgba(118,240,178,.55); }
+
+@media (max-width:780px) {
+  /* Alignment is a control-and-observe loop; the dials belong under the board
+     they change, not a screen and a half below it. */
+  .control-panel { display:flex; flex-direction:column; }
+  .controls { order:-2; }
+  .clarity-block { order:-1; margin-top:22px; }
+  .primary-button,.pulse-button { order:0; }
+  .hint-copy { order:1; }
+  .instruction-strip { order:2; margin:26px 0 0; }
+  .mission-block { order:3; margin-top:26px; }
+  .mission-brief { order:4; min-height:0; margin:14px 0 0; }
+  .key-legend { order:5; }
+}
+
+@media (hover: none) {
+  /* No keyboard, so the 1-8 digits are noise; the dot needs the room instead. */
+  .route-index { display:none; }
+  .route-node { r:11; }
+  .vector-choice.is-lit .route-node { r:13; }
+}
+
+@media (max-width:520px) {
+  .field-panel { min-height:420px; }
+  .field-label { gap:12px; align-items:flex-start; }
+  .field-label span:first-child { display:none; }
+  .field-label span:last-child { flex:1; text-align:left; font-size:9px; letter-spacing:.12em; }
 }

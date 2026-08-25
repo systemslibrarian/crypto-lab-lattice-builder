@@ -36,7 +36,7 @@ export const CAMPAIGN_LEVELS: Level[] = [
   {
     name: "First light",
     codename: "FIELD 01",
-    brief: "The pattern is close. Settle the field, then choose its shortest jump.",
+    brief: "The rows are only lightly bent. Straighten them, then take the dot nearest HOME.",
     targetTwist: 8,
     targetProjection: 62,
     initialTwist: -24,
@@ -49,7 +49,7 @@ export const CAMPAIGN_LEVELS: Level[] = [
   {
     name: "Crosswind",
     codename: "FIELD 02",
-    brief: "A harder gust has bent the rows. Find the calm view hidden inside it.",
+    brief: "A harder lean this time. Work both dials, then find which dot sits closest to HOME.",
     targetTwist: -13,
     targetProjection: 38,
     initialTwist: 22,
@@ -62,7 +62,7 @@ export const CAMPAIGN_LEVELS: Level[] = [
   {
     name: "Deep fog",
     codename: "FIELD 03",
-    brief: "The signal is almost buried. Read the structure, not the scattered dots.",
+    brief: "The grid is almost buried. Straighten it anyway, then measure your way to the nearest dot.",
     targetTwist: 17,
     targetProjection: 74,
     initialTwist: -17,
@@ -155,19 +155,19 @@ const DAILY_NAMES = [
 
 const DAILY_BRIEFS = [
   [
-    "The pattern is close. Settle the field, then choose its shortest jump.",
-    "The rows are only lightly bent. Straighten them and take the smallest step.",
-    "An easy drift today. Bring the field to rest, then read its shortest move.",
+    "The rows are only lightly bent. Straighten them, then take the dot nearest HOME.",
+    "An easy drift today. Bring the grid back to square, then find the closest dot to HOME.",
+    "Barely bent. Straighten the rows and the nearest dot should be plain enough.",
   ],
   [
-    "A harder gust has bent the rows. Find the calm view hidden inside it.",
-    "The field leans away from you. Hold it still before you trust the spacing.",
-    "Something crosses the grid. Settle it, then choose the tightest jump.",
+    "A harder lean this time. Work both dials, then find which dot sits closest to HOME.",
+    "The grid leans away from you. Hold it square before you trust any distance.",
+    "Something crosses this grid. Straighten it, then measure before you take a dot.",
   ],
   [
-    "The signal is almost buried. Read the structure, not the scattered dots.",
-    "Little is left above the noise. Follow the lines, not the loose points.",
-    "The field hides inside its own static. Find the order, then the short jump.",
+    "The grid is almost buried. Straighten it anyway, then measure your way to the nearest dot.",
+    "Little is left above the jitter. Trust the measurements here, not your eye.",
+    "This one hides inside its own static. Find the square view, then the closest dot to HOME.",
   ],
 ];
 
