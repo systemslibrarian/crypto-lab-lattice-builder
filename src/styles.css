@@ -66,10 +66,10 @@ button, a, input[type="range"] { -webkit-tap-highlight-color: transparent; }
 .live-dot { width:6px; height:6px; background:var(--mint-bright); border-radius:50%; box-shadow:0 0 11px rgba(118,240,178,.8); }
 
 .game-section { max-width:1420px; margin:0 auto; padding:82px 38px 110px; }
-.game-intro { display:grid; grid-template-columns:.85fr 1.35fr 1fr; align-items:end; margin-bottom:46px; }
+.game-intro { container-type:inline-size; display:grid; grid-template-columns:.85fr 1.35fr 1fr; align-items:end; margin-bottom:46px; }
 .game-intro .eyebrow { align-self:start; padding-top:11px; }
 .eyebrow { margin:0; color:var(--mint-bright); font-size:10px; font-weight:800; letter-spacing:.24em; }
-.game-intro h1 { margin:0; max-width:680px; color:#f5f7ed; font-size:clamp(54px,6.5vw,92px); line-height:.86; letter-spacing:-.06em; text-transform:uppercase; }
+.game-intro h1 { margin:0; max-width:680px; color:#f5f7ed; font-size:clamp(42px,5.4cqw,72px); line-height:.88; letter-spacing:-.055em; text-transform:uppercase; }
 .game-intro>p:last-child { margin:0 0 3px auto; max-width:335px; color:#9bb0ac; font-family:Arial,sans-serif; font-size:15px; line-height:1.65; }
 
 .game-frame { border:1px solid rgba(178,221,210,.22); background:rgba(8,20,24,.82); box-shadow:0 40px 110px rgba(0,0,0,.34); }
@@ -191,8 +191,8 @@ input[type="range"]::-moz-range-thumb { width:11px; height:11px; border:4px soli
 .final-score strong { margin-top:6px; color:var(--amber); font-family:ui-monospace,monospace; font-size:26px; }
 
 .lesson-section { max-width:1420px; margin:0 auto; padding:110px 38px 105px; border-top:1px solid var(--line); }
-.lesson-heading { display:grid; grid-template-columns:.85fr 1.35fr 1fr; align-items:start; }
-.lesson-heading h2 { margin:0; max-width:530px; color:#f0f4e9; font-size:clamp(44px,5vw,72px); line-height:.95; letter-spacing:-.055em; text-transform:uppercase; }
+.lesson-heading { container-type:inline-size; display:grid; grid-template-columns:.85fr 1.35fr 1fr; align-items:start; }
+.lesson-heading h2 { margin:0; max-width:530px; color:#f0f4e9; font-size:clamp(34px,4.2cqw,56px); line-height:.97; letter-spacing:-.05em; text-transform:uppercase; text-wrap:balance; }
 .lesson-heading>p:last-child { max-width:360px; margin:5px 0 0 auto; color:#93aaa6; font-family:Arial,sans-serif; font-size:14px; line-height:1.65; }
 
 .lesson-grid { margin-top:65px; display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
@@ -245,7 +245,7 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
 }
 
 @media (max-width:520px) {
-  .game-intro h1 { font-size:49px; }
+  .game-intro h1 { font-size:clamp(30px,12.5cqw,42px); }
   .game-hud { grid-template-columns:1fr 1fr; gap:10px; }
   .progress-track { grid-column:1/-1; grid-row:2; margin-bottom:12px; }
   .field-panel { min-height:490px; }
