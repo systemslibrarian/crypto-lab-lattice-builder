@@ -14,15 +14,15 @@
     "test": "node --test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@vitejs/plugin-react": "6.0.2",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "vite": "8.0.13"
+    "@vitejs/plugin-react": "6.1.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "vite": "8.2.2"
   },
   "devDependencies": {
     "@types/node": "22.19.19",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
     "typescript": "5.9.3"
   }
 }
