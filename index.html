@@ -1,12 +1,22 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests"
+      content="default-src 'self'; script-src 'self' 'sha256-XLmeeJzo45Xvb5i3oGs+Pyy4Sze4PDTN2hU7ic6lUzE='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests"
     />
+    <script>
+      // Dark is the only theme. Pin it before first paint, and overwrite any
+      // 'light' a visitor stored back when the header carried a theme toggle.
+      (function () {
+        try {
+          localStorage.setItem('theme', 'dark');
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', 'dark');
+      })();
+    </script>
     <title>Lattice Builder</title>
     <meta
       name="description"
