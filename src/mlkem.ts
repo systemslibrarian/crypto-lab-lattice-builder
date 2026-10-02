@@ -1,6 +1,9 @@
-// ML-KEM (FIPS 203). Educational implementation for an exhibit: it follows the
-// standard closely enough to reproduce NIST's known-answer vectors, but it makes
-// no attempt at constant-time execution and must not be used to protect anything.
+// ML-KEM (FIPS 203). Educational implementation for an exhibit: it reproduces
+// NIST's published ACVP vectors -- all 180 keyGen, encapsulation and
+// decapsulation cases, driven over this module by test/mlkem-acvp.test.js -- but
+// it makes no attempt at constant-time execution, performs no input validation
+// (so the 60 ACVP key-check cases are not claimed), and must not be used to
+// protect anything.
 import { sha3_256, sha3_512, shake256, shake128Xof } from "./keccak";
 import {
   PARAMS,

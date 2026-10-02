@@ -78,7 +78,7 @@ Running an exchange fills in every value, split into the two groups that matter.
 
 Flipping a bit of the ciphertext on screen shows implicit rejection: decapsulation does not fail or complain, it returns a *different* key derived from a value only the receiver holds, so a tampering attacker learns nothing from the outcome.
 
-It is implemented from scratch with no dependencies, including Keccak, because the Web Crypto API provides no SHA-3 or SHAKE. Correctness is checked against all 54 of NIST's published ACVP vectors across ML-KEM-512, 768 and 1024, including twelve invalid-ciphertext cases.
+It is implemented from scratch with no dependencies, including Keccak, because the Web Crypto API provides no SHA-3 or SHAKE. Correctness is checked against NIST's published ACVP vectors for ML-KEM: every keyGen, encapsulation and decapsulation case across ML-KEM-512, 768 and 1024 — **180 tests**, including the 30 decapsulation cases that exercise implicit rejection. They run in `npm test`, which the deploy depends on, against the page's own module rather than a copy; the vectors are pinned verbatim under [`test/fixtures/acvp`](test/fixtures/acvp) with their upstream commit and digests. The 60 key-validation cases in the same files are **not** claimed: they assert that a malformed key is rejected, and this implementation performs no input validation.
 
 > This implementation exists to be looked at. It is not constant time, so it leaks timing information and must not be used to protect anything real.
 

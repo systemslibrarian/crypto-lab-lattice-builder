@@ -434,7 +434,8 @@ function Instrument() {
           Two people who have never met need one shared secret, and the only channel between them is one an eavesdropper is
           reading in full. They cannot simply send the secret — that is the whole problem. What they can do is send a public key
           and a scrambled package, and both arrive at the same 32 bytes anyway. Everything below is real: this is ML-KEM, the
-          FIPS 203 algorithm, implemented in this page and checked against all 54 of NIST's published test vectors.
+          FIPS 203 algorithm, implemented in this page and checked against 180 of NIST's published ACVP vectors — every keyGen,
+          encapsulation and decapsulation case for all three parameter sets.
         </p>
       </div>
 
