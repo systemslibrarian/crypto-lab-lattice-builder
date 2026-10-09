@@ -53,6 +53,12 @@ jobs:
       - name: Build site
         run: npm run build
 
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Gameplay and accessibility controls
+        run: npm run test:e2e -- --workers=1
+
       - name: Configure Pages
         uses: actions/configure-pages@v6
 
