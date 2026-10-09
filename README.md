@@ -139,6 +139,15 @@ npm run build
 The static site is generated in `dist/`.
 
 ## Technology and privacy
+## Verification
+
+`npm test` runs the mathematical and cryptographic vector suites and the CSP hash guard.
+`npm run test:e2e` builds and serves the current source, then checks gameplay by keyboard,
+desktop and mobile layouts, JavaScript errors, and axe WCAG 2 A/AA and 2.1 AA rules.
+Install the test browser with `npx playwright install chromium` after `npm ci`.
+The Pages build job runs both commands before deployment.
+
+## Technology and privacy
 
 - React + TypeScript + Vite
 - Fully static; no backend or database

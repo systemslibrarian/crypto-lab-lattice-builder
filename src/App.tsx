@@ -535,7 +535,7 @@ export default function Home() {
         <div className="game-frame">
           <div className="game-hud">
             <div><span>FIELD</span><strong>{String(levelIndex + 1).padStart(2, "0")} / 0{levels.length}</strong></div>
-            <div className="progress-track" aria-label={`Field ${levelIndex + 1} of ${levels.length}`}>
+            <div className="progress-track" role="progressbar" aria-label="Run progress" aria-valuemin={0} aria-valuemax={levels.length} aria-valuenow={levelIndex + (solved ? 1 : 0)} aria-valuetext={`Field ${levelIndex + 1} of ${levels.length}`}>
               {levels.map((item, index) => (
                 <span className={index < levelIndex || (index === levelIndex && solved) ? "done" : index === levelIndex ? "active" : ""} key={`${item.codename}-${index}`} />
               ))}
@@ -555,7 +555,7 @@ export default function Home() {
               <svg
                 className={`lattice-board ${aligned ? "is-aligned" : ""} ${flash ? "is-snapping" : ""}`}
                 viewBox="0 0 600 560"
-                role="img"
+                role="group"
                 aria-label={aligned ? "The rows are straight. Eight dots surround the home dot — choose the one nearest to it." : "A bent dot field. Use the twist and slant dials to straighten its rows."}
               >
                 <defs>
@@ -769,7 +769,7 @@ export default function Home() {
       <ExpertMode />
 
       <footer>
-        <a className="brand" href="#game"><span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>LATTICE / BUILDER</span></a>
+        <a className="brand" href="#game" aria-label="Lattice Builder home"><span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>LATTICE / BUILDER</span></a>
         <p>A playable introduction to the Shortest Vector Problem.</p>
         <a href="#game">RUN IT AGAIN ↑</a>
       </footer>

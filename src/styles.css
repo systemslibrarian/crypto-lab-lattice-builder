@@ -415,7 +415,7 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
 .ladder { display:grid; border:1px solid var(--line); }
 .ladder-row { display:grid; grid-template-columns:1.5fr 1fr 1.3fr; gap:16px; align-items:center; padding:14px 18px; border:0; border-bottom:1px solid var(--line); background:transparent; color:#93aaa6; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; text-align:left; cursor:pointer; transition:background 140ms ease; }
 .ladder-row:last-child { border-bottom:0; }
-.ladder-row.is-head { color:#67847f; font-family:"Arial Narrow",Arial,sans-serif; font-size:8px; font-weight:800; letter-spacing:.18em; cursor:default; background:#0b191e; }
+.ladder-row.is-head { color:#8daaa4; font-family:"Arial Narrow",Arial,sans-serif; font-size:8px; font-weight:800; letter-spacing:.18em; cursor:default; background:#0b191e; }
 .ladder-row b { color:#e8eee5; font-family:"Arial Narrow",Arial,sans-serif; font-size:11px; font-weight:800; letter-spacing:.13em; }
 .ladder-row:not(.is-head):hover { background:rgba(255,255,255,.025); }
 .ladder-row.on { background:rgba(255,197,92,.07); }
@@ -433,11 +433,11 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
 
 .kv { display:grid; gap:1px; background:var(--line); border:1px solid var(--line); }
 .kv>div { display:grid; grid-template-columns:230px 1fr 110px; gap:16px; align-items:center; padding:13px 18px; background:#0a171c; }
-.kv span { color:#67847f; font-size:8px; font-weight:800; letter-spacing:.18em; }
+.kv span { color:#8daaa4; font-size:8px; font-weight:800; letter-spacing:.18em; }
 .kv strong { color:var(--amber); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; overflow-wrap:anywhere; }
 .kv strong.hit { color:var(--mint-bright); }
 .kv strong.wrong { color:var(--coral); }
-.kv em { color:#5d7a75; font-size:9px; font-style:normal; letter-spacing:.1em; text-align:right; }
+.kv em { color:#8daaa4; font-size:9px; font-style:normal; letter-spacing:.1em; text-align:right; }
 
 .tamper { margin-top:26px; padding:22px; border:1px solid rgba(255,115,91,.3); background:rgba(255,115,91,.04); }
 .advanced-section .honesty-note { margin-top:30px; }
@@ -506,7 +506,7 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
 .wire-group.is-private { border-color:rgba(118,240,178,.3); background:rgba(118,240,178,.03); }
 .wire-group.is-private h4 { color:var(--mint-bright); }
 .wire-group .kv>div>span { display:block; }
-.wire-group .kv span em { display:block; text-align:left; margin-top:3px; color:#5d7a75; font-family:Arial,sans-serif; font-size:9px; font-style:normal; font-weight:400; letter-spacing:0; text-transform:none; }
+.wire-group .kv span em { display:block; text-align:left; margin-top:3px; color:#8daaa4; font-family:Arial,sans-serif; font-size:9px; font-style:normal; font-weight:400; letter-spacing:0; text-transform:none; }
 .kv strong.private { color:var(--coral); }
 
 /* ---- the bridge from the 2D board to Module-LWE ---- */
