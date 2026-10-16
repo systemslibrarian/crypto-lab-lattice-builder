@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import AdvancedMode from "./AdvancedMode";
 import ExpertMode from "./ExpertMode";
+import VectorFlight from "./VectorFlight";
 import { createSound, type Sound } from "./sound";
 import {
   CAMPAIGN_LEVELS,
@@ -14,7 +15,7 @@ import {
   type Vector,
 } from "./lattice";
 
-type Mode = "campaign" | "daily";
+type Mode = "campaign" | "daily" | "practice";
 type SectorRecord = { wrong: number; hint: boolean; perfect: boolean };
 
 const TWIST_TOL = 3;
@@ -115,7 +116,9 @@ export default function Home() {
   const pointerTypeRef = useRef<string>("mouse");
 
   const level = levels[levelIndex];
-  const bestKey = mode === "daily" ? `lb:daily:v2:${dayKey}` : "lb:best:campaign:v2";
+  const bestKey = mode === "daily" ? `lb:daily:v2:${dayKey}` : mode === "practice" ? "lb:best:practice:v1" : "lb:best:campaign:v2";
+  const cleanChain = records.reduce((count, record) => !record.hint && record.wrong === 0 ? count + 1 : 0, 0);
+  const runMedal = records.every(r => r.perfect && !r.hint && r.wrong === 0) ? "GOLD" : records.every(r => !r.hint && r.wrong === 0) ? "SILVER" : "BRONZE";
 
   const twistError = Math.abs(twist - level.targetTwist);
   const projectionError = Math.abs(projection - level.targetProjection);
@@ -255,8 +258,8 @@ export default function Home() {
       buzz(perfectLock ? [12, 40, 22] : 24);
       setFeedback(
         perfectLock
-          ? `Nearest dot, and dead centre on both dials. +${earned} signal. Nothing in this grid sits closer to HOME.`
-          : `Nearest dot — nothing in this grid sits closer to HOME. +${earned} signal. A tighter lock pays more.`,
+          ? `Nearest dot, and dead centre on both dials. +${earned} signal. That is a shortest choice among the eight candidates.`
+          : `Nearest dot — it is a shortest choice among the eight candidates. +${earned} signal. A tighter lock pays more.`,
       );
     } else {
       const length = Math.round(latticeLength(vector, level.basisU, level.basisV));
@@ -267,7 +270,7 @@ export default function Home() {
       }
       setWrongPicks((list) => [...list, vector]);
       setArmed(null);
-      setScore((value) => Math.max(0, value - wrongCost));
+      if (mode !== "practice") setScore((value) => Math.max(0, value - wrongCost));
       play((sound) => sound.wrong());
       setFeedback(`That dot is ${length} from HOME. Its distance stays on the board — one of the others is closer.`);
     }
@@ -293,7 +296,7 @@ export default function Home() {
     if (pulseTimer.current) clearTimeout(pulseTimer.current);
     setPulse(true);
     setHintUsed(true);
-    setScore((value) => Math.max(0, value - HINT_COST));
+    if (mode !== "practice") setScore((value) => Math.max(0, value - HINT_COST));
     play((sound) => sound.hint());
     setFeedback("The secret marks where both dials belong. Finding the nearest dot is still yours to do.");
     pulseTimer.current = setTimeout(() => setPulse(false), 2200);
@@ -375,12 +378,13 @@ export default function Home() {
   }
 
   function shareRun() {
-    const header = mode === "daily" ? `DAILY ${dayKey}` : "CAMPAIGN";
+    const header = mode === "daily" ? `DAILY ${dayKey}` : mode.toUpperCase();
     const glyphs = records.map(glyphFor).join(" ");
     const perfects = records.filter((record) => record.perfect).length;
     const lines = [
       `LATTICE BUILDER · ${header}`,
       `${glyphs}   SIGNAL ${formatScore(score)}`,
+      `${mode === "practice" ? "PRACTICE COMPLETE" : `${runMedal} RUN`}`,
     ];
     if (perfects > 0) lines.push(`${perfects} perfect lock${perfects > 1 ? "s" : ""}`);
     lines.push(SITE_URL);
@@ -497,6 +501,7 @@ export default function Home() {
           <div className="mode-switch" role="group" aria-label="Run type">
             <button className={mode === "campaign" ? "on" : ""} onClick={() => switchMode("campaign")} aria-pressed={mode === "campaign"}>CAMPAIGN</button>
             <button className={mode === "daily" ? "on" : ""} onClick={() => switchMode("daily")} aria-pressed={mode === "daily"}>DAILY</button>
+            <button className={mode === "practice" ? "on" : ""} onClick={() => switchMode("practice")} aria-pressed={mode === "practice"}>PRACTICE</button>
           </div>
           <button className="sound-toggle" onClick={toggleMute} aria-pressed={!muted} aria-label={muted ? "Turn sound on" : "Turn sound off"}>
             {muted ? "◼ SOUND OFF" : "◗ SOUND ON"}
@@ -507,32 +512,23 @@ export default function Home() {
 
       <section className="game-section" id="game" ref={gameRef}>
         <header className="game-intro">
-          <p className="eyebrow">CRYPTOGRAPHY LAB · THREE FIELDS · TWO MINUTES</p>
+          <p className="eyebrow">CRYPTOGRAPHY LAB · FIND THE SIGNAL · FLY THE LATTICE</p>
           <h1>Eight dots.<br />Take the nearest.</h1>
-          <p>Eight dots ring HOME, the red dot in the middle. Straighten the grid with the two dials until they light up, then take the one nearest HOME — hover or tap any dot to read its exact distance. Easy on a flat board; in a few hundred dimensions nobody knows a fast way, and lattice-based encryption is built on that gap.</p>
+          <p>Three fields have lost their signal. Tune the dials, lock onto the nearest dot, and bring them back online. Chase a gold run, or jump into Vector Flight and pilot your own route through the lattice.</p>
         </header>
 
-        <div className="orientation">
-          <span>WHAT THIS IS ABOUT</span>
-          <p>
-            <b>ML-KEM is the new standard for two computers to agree on the same secret key while somebody records every message
-            they send.</b> It is built to hold up even against a quantum computer, and it does that by hiding the secret inside a
-            problem about grids of dots. The puzzle below builds the intuition for that problem. No background needed — it is a
-            two-minute game about finding which dot is nearest.
-          </p>
+        <div className="play-launcher" aria-label="Choose your game">
+          <a className="primary-button" href="#signal-game">RESTORE THE SIGNAL ↓</a>
+          <a className="ghost-button" href="#vector-flight">VECTOR FLIGHT · NEW →</a>
+          <a className="learn-link" href="#behind-the-puzzle">Explore the mathematics</a>
         </div>
+        <details className="game-howto">
+          <summary>First time? Your 20-second briefing</summary>
+          <ol><li>Move TWIST and SLANT. The clarity meter rises as you get closer.</li><li>At LOCK, hover, focus, or tap the lit dots to compare their distances.</li><li>Pick a nearest dot. Either of the two opposite shortest dots counts.</li></ol>
+          <p>Want a gentle start? Choose PRACTICE: hints and wrong picks cost nothing. All explanations stay open to everyone.</p>
+        </details>
 
-        <nav className="route-map" aria-label="How far to go">
-          <p className="route-lead">Four levels, each one deeper. Stop wherever you like.</p>
-          <div className="route-cards">
-            <a href="#game"><span className="route-no">01</span><strong>PLAY</strong><em>Three puzzles. Nothing to know first.</em><i>2 min</i></a>
-            <a href="#behind-the-puzzle"><span className="route-no">02</span><strong>THE IDEA</strong><em>Why finding the nearest dot gets hard.</em><i>1 min read</i></a>
-            <a href="#advanced"><span className="route-no">03</span><strong>THE REAL THING</strong><em>Break a toy key, then watch a real key exchange run.</em><i>5 min</i></a>
-            <a href="#expert"><span className="route-no">04</span><strong>EXPERT</strong><em>What a secret key actually is.</em><i>5 min</i></a>
-          </div>
-        </nav>
-
-        <div className="game-frame">
+        <div className="game-frame" id="signal-game">
           <div className="game-hud">
             <div><span>FIELD</span><strong>{String(levelIndex + 1).padStart(2, "0")} / 0{levels.length}</strong></div>
             <div className="progress-track" role="progressbar" aria-label="Run progress" aria-valuemin={0} aria-valuemax={levels.length} aria-valuenow={levelIndex + (solved ? 1 : 0)} aria-valuetext={`Field ${levelIndex + 1} of ${levels.length}`}>
@@ -546,6 +542,10 @@ export default function Home() {
             </div>
           </div>
 
+          <div className="mission-rewards">
+            <span>{mode === "practice" ? "PRACTICE · FREE HINTS · NO PENALTIES" : "GOLD: 3 PERFECT, UNASSISTED PICKS · SILVER: 3 CLEAN PICKS"}</span>
+            <strong>{cleanChain > 0 ? `${cleanChain} CLEAN PICK${cleanChain > 1 ? "S" : ""} IN A ROW ✦` : "THREE BEACONS TO BRING ONLINE"}</strong>
+          </div>
           <div className="game-grid">
             <section className="field-panel" aria-label="Interactive lattice field">
               <div className="field-label">
@@ -553,7 +553,7 @@ export default function Home() {
                 <span>{solved ? "STEP 2 / 2 · DONE" : aligned ? "STEP 2 / 2 · TAP THE DOT NEAREST HOME" : "STEP 1 / 2 · STRAIGHTEN THE ROWS"}</span>
               </div>
               <svg
-                className={`lattice-board ${aligned ? "is-aligned" : ""} ${flash ? "is-snapping" : ""}`}
+                className={`lattice-board ${aligned ? "is-aligned" : ""} ${flash ? "is-snapping" : ""} ${solved ? "field-restored" : ""}`}
                 viewBox="0 0 600 560"
                 role="group"
                 aria-label={aligned ? "The rows are straight. Eight dots surround the home dot — choose the one nearest to it." : "A bent dot field. Use the twist and slant dials to straighten its rows."}
@@ -594,6 +594,7 @@ export default function Home() {
                   })}
                 </g>
 
+                {solved && <circle className="restore-ring" cx={origin.x} cy={origin.y} r="40" aria-hidden="true" />}
                 {flash && <circle className="snap-ring" cx="300" cy="280" r="60" aria-hidden="true" />}
 
                 <g className={`vector-layer ${aligned ? "" : "is-dormant"}`}>
@@ -654,7 +655,8 @@ export default function Home() {
               {complete && (
                 <div className="completion-card" role="dialog" aria-label="Mission complete">
                   <p>ALL {levels.length} FIELDS CLEARED</p>
-                  <h2>You found structure<br />inside the fog.</h2>
+                  <h2>{mode === "practice" ? "Practice complete." : `${runMedal} RUN.`}<br />Signal restored.</h2>
+                  <p className="medal-explain">{mode === "practice" ? "Ready for a scored mission? Choose Campaign above." : runMedal === "GOLD" ? "Three perfect locks. Three clean picks. Beautiful flying." : runMedal === "SILVER" ? "Three clean picks! Perfect both dials next time for gold." : "Every beacon is back online. Try three picks without misses or hints for silver."}</p>
                   <div className="glyph-row" aria-label="Run summary">{records.map(glyphFor).join(" ")}</div>
                   <div className="final-score">
                     <span>FINAL SIGNAL</span><strong>{formatScore(score)}</strong>
@@ -662,7 +664,8 @@ export default function Home() {
                   </div>
                   <button className="primary-button" onClick={restart}>PLAY AGAIN</button>
                   <button className="ghost-button" onClick={shareRun}>COPY RESULT</button>
-                  <p className="share-status">{shareStatus}</p>
+                  <p className="share-status" role="status">{shareStatus}</p>
+                  <a className="flight-next-link" href="#vector-flight">NEXT ADVENTURE: VECTOR FLIGHT →</a>
                 </div>
               )}
             </section>
@@ -706,10 +709,10 @@ export default function Home() {
                 {aligned && !solved ? (
                   <p className="payout-line">
                     LOCK QUALITY {Math.round(precision * 100)}% · A CLEAN PICK PAYS <b>+{pickBonus}</b>
-                    {wrongPicks.length > 0 ? ` · NEXT MISS −${wrongCost}` : ""}
+                    {wrongPicks.length > 0 ? ` · NEXT MISS −${mode === "practice" ? 0 : wrongCost}` : ""}
                   </p>
                 ) : solved ? (
-                  <p>Locked, and taken. Nothing in this grid sits closer to HOME.</p>
+                  <p>Locked, and taken. That is a shortest choice among the eight candidates.</p>
                 ) : (
                   <p>{clarity > 70
                     ? "Close. Small moves now — LOCK is the mark on the meter."
@@ -728,7 +731,7 @@ export default function Home() {
               ) : (
                 <button className="pulse-button" onClick={usePulse} disabled={pulse}>
                   <span className="key-cap">H</span>
-                  <span><strong>USE THE SECRET</strong><small>−{HINT_COST} SIGNAL</small></span>
+                  <span><strong>USE THE SECRET</strong><small>{mode === "practice" ? "FREE IN PRACTICE" : `−${HINT_COST} SIGNAL`}</small></span>
                   <span className="pulse-glyph">⌁</span>
                 </button>
               )}
@@ -746,15 +749,17 @@ export default function Home() {
         </div>
       </section>
 
+      <VectorFlight play={play} />
+
       <section className="lesson-section" id="behind-the-puzzle">
         <div className="lesson-heading">
           <p className="eyebrow">BEHIND THE PUZZLE</p>
           <h2>The shape was always there.</h2>
-          <p>Cryptography can hide a clean structure under distortion and noise. Without the secret, finding the shortest step becomes a search nobody knows how to do quickly.</p>
+          <p>A lattice is a pattern made from whole-number steps. These games let you explore that structure in two dimensions; real lattice cryptography uses much larger mathematical problems.</p>
         </div>
         <div className="lesson-grid">
           <article><span className="lesson-icon"><i className="dots-icon" /></span><p>01 / DISTORT</p><h3>The bad view</h3><p>Turn a clean grid, lean it over, bury it in jitter, and the same structure is still in there. Only your view of it changed.</p></article>
-          <article><span className="lesson-icon"><i className="route-icon" /></span><p>02 / SEARCH</p><h3>Find the nearest dot</h3><p>Two vectors generate every dot on that board — that set of dots is a lattice, and HOME is where both sit at zero. The dot you took is the shortest step the lattice allows, which is the Shortest Vector Problem. ML-KEM does not ask you this exact question: it hides its key by parking a point just off a lattice and betting nobody can work out which dot that point is nearest. Same lattice, same act of finding the nearest dot, asked about a different spot — and the known attacks all come down to hunting short vectors. Here you read it in a glance; in the hundreds of dimensions real schemes use there is nothing to look at.</p></article>
+          <article><span className="lesson-icon"><i className="route-icon" /></span><p>02 / SEARCH</p><h3>Find the nearest dot</h3><p>Two vectors generate every dot on that board — that set of dots is a lattice, and HOME is where both sit at zero. The game compares eight candidates. The full Shortest Vector Problem asks for a shortest nonzero vector anywhere in the lattice; with an arbitrary basis, that vector may lie outside this little group. Finding the lattice point nearest a separate target is a different problem, the Closest Vector Problem. ML-KEM relies on Module Learning with Errors: learning a secret from noisy modular equations. Lattice reduction is an important attack technique, but these games are not simulations of that attack.</p></article>
           <article><span className="lesson-icon"><i className="key-icon" /></span><p>03 / UNLOCK</p><h3>The secret</h3><p>In this game the secret marks where the dials belong. Real ML-KEM keeps a short list of small numbers instead — that is its private key, and it is exactly enough to undo the noise that hides the message. Anyone without it is left with the search on the left.</p></article>
         </div>
 
@@ -767,6 +772,8 @@ export default function Home() {
       <AdvancedMode />
 
       <ExpertMode />
+
+      <nav className="learning-links" aria-label="Explore further"><a href="#game">Signal puzzle</a><a href="#vector-flight">Vector Flight</a><a href="#advanced">Toy keys &amp; real ML-KEM</a><a href="#expert">Explore basis changes</a></nav>
 
       <footer>
         <a className="brand" href="#game" aria-label="Lattice Builder home"><span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>LATTICE / BUILDER</span></a>

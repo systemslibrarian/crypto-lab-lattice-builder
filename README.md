@@ -1,6 +1,6 @@
 # Lattice Builder
 
-A three-field spatial puzzle about the Shortest Vector Problem. Eight dots ring HOME, the red dot at the centre of a scrambled grid. Straighten the grid with two dials until the dots light up, then take the one nearest HOME.
+Two ways to play with lattice geometry: a three-field signal puzzle and **Vector Flight**, a six-mission navigation game. Eight dots ring HOME, the red dot at the centre of a scrambled grid. Straighten the grid with two dials until the dots light up, then take the one nearest HOME.
 
 The exhibit is intentionally honest about its limits: it is an analogy, not an implementation or simulation of ML-KEM. Real ML-KEM uses high-dimensional module-lattice arithmetic and the hardness of learning from noisy relationships.
 
@@ -8,14 +8,32 @@ The exhibit is intentionally honest about its limits: it is an analogy, not an i
 
 Two dials undo the distortion. **Twist** turns the whole field; **slant** takes the lean out of the columns. The eight candidate dots are visible from the first frame but stay dark until both dials land inside tolerance — then the grid snaps square and they light up. Hover, focus or tap any dot to read its exact distance from HOME before committing, so nobody is asked to judge by eye on a board that residual jitter can make lie.
 
-The answer is whichever lit dot is physically closest to HOME. That is the Shortest Vector Problem: the shortest non-zero vector the lattice allows. Trivial to read off in two dimensions, and in the hundreds of dimensions real schemes use there is nothing to look at and no known fast method — which is the gap lattice-based cryptography is built on.
+The answer is a lit dot with minimum mathematical distance from HOME among the eight candidates. Opposite vectors tie and either counts. This introduces the Shortest Vector Problem, but checking eight candidates is not a general proof of a globally shortest lattice vector; an arbitrary basis can hide the answer outside that set. Display jitter is cosmetic, so use the numeric distances.
 
 - **Campaign** — three hand-tuned fields.
+- **Practice** — the campaign fields with free hints and no wrong-pick penalties; scores are stored separately.
 - **Daily** — three fields generated from the date, identical for everyone playing that day, with a copyable result summary.
 
-Scoring rewards precision rather than speed. A pick pays between 240 and 1000 signal depending on how tightly the grid is locked, so a perfect lock on both dials is worth roughly four times a lock that scrapes in at the tolerance edge. A wrong dot costs signal and permanently leaves its distance on the board, with the cost escalating on each miss. The secret costs a flat 220 and marks where both dials belong — it does not pick the dot for you, which is the point: in the real scheme the secret is a better description of the same lattice, not an answer key.
+Scoring rewards precision rather than speed. A pick pays between 240 and 1000 signal depending on how tightly the grid is locked, so a perfect lock on both dials is worth roughly four times a lock that scrapes in at the tolerance edge. A wrong dot costs signal and permanently leaves its distance on the board, with the cost escalating on each miss. The secret costs a flat 220 and marks where both dials belong — it does not pick the dot for you, the dial secret is a game mechanic, not the form of an ML-KEM private key.
 
 The nearest dot is always derived from the level's basis at runtime rather than stored alongside it, so the answer and the geometry cannot drift apart. Every field, hand-tuned or generated, is held to a minimum margin between the nearest dot and the runner-up, and generated fields draw their winning direction uniformly — a field whose answer is only a few percent nearer than its neighbour is not a puzzle, it is a coin flip.
+
+### Mission rewards
+
+A completed scored run earns **gold** for three exact dial locks with no wrong picks or hints, **silver** for three unassisted correct first picks, or **bronze** for finishing. The live clean-pick chain and an expanding restoration ring celebrate progress without changing the existing signal formula or score records. Practice is labelled separately and does not award a scored-run medal. A short, optional briefing introduces the controls; deeper explanations remain freely accessible.
+
+### Vector Flight
+
+Jump straight to `#vector-flight`. Six missions introduce whole-number basis steps, slanted thrusters, blocked landing points, and a final return HOME. Reconnect numbered beacons in order with **+U, −U, +V, −V**. Buttons show the actual on-screen thrust direction, with equivalent **W/S** and **D/A** shortcuts while focus is inside the flight section.
+
+- No timer, lives, or game-over screen. Undo is free, and retry starts the current mission again.
+- The displayed best-route count is computed with breadth-first search over the bounded coefficient grid (−4 through 4 on both axes), including debris. It counts **thruster taps**, not Euclidean length or cryptographic work.
+- Gold: a shortest complete route without hints. Silver: at most four extra moves, with hints allowed. Bronze: complete the mission.
+- Hints identify one next step on a shortest route to the current beacon. They never move the ship automatically. Once used, a hint remains recorded for that attempt even after undo.
+- Best medals persist locally under `lb:flight:medals:v1`; malformed or blocked storage cannot stop play. Existing sound controls and reduced-motion preferences apply to both games.
+- All missions are open from the start. Switching mission or pressing retry starts a fresh attempt; earned medals remain.
+
+The optional “Why does this work?” explanation connects navigation to `aU + bV`. This is a finite graph-navigation puzzle, not a shortest-vector solver or an attack on ML-KEM.
 
 ### Controls
 
