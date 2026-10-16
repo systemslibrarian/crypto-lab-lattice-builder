@@ -655,3 +655,109 @@ footer>a:last-child { color:#7e9a95; font-size:9px; font-weight:800; letter-spac
 .clear-guess:hover:not(:disabled) { color:var(--amber); border-color:rgba(255,197,92,.45); }
 .clear-guess:disabled { opacity:.3; cursor:default; }
 .coef-row { margin-top:9px; }
+
+/* Play first; the deeper mathematics remains one click away. */
+.game-section { padding-top:48px; padding-bottom:64px; }
+.game-intro { grid-template-columns:.7fr 1.25fr 1.1fr; margin-bottom:28px; }
+.play-launcher { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-bottom:20px; }
+.play-launcher .primary-button,.play-launcher .ghost-button { width:auto; margin:0; padding:16px 20px; text-decoration:none; }
+.learn-link,.flight-next-link { color:var(--mint); font-size:12px; text-underline-offset:4px; }
+.game-howto { margin:0 0 24px; padding:16px 20px; border:1px solid var(--line); background:#0b191e; color:#b8cec7; font:14px/1.6 Arial,sans-serif; }
+.game-howto summary { cursor:pointer; color:var(--mint); font-weight:bold; }
+.game-howto ol { padding-left:22px; }
+.mission-rewards { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; padding:13px 24px; background:#10221f; border-bottom:1px solid var(--line); font-size:10px; line-height:1.5; letter-spacing:.06em; color:#b8cec7; }
+.mission-rewards strong { color:var(--amber); }
+.completion-card .medal-explain { margin:14px 0; color:#bed1c9; font:12px/1.5 Arial,sans-serif; letter-spacing:0; }
+.flight-next-link { display:block; margin-top:15px; font-size:10px; }
+.restore-ring { stroke:var(--mint-bright); stroke-width:4; fill:none; transform-origin:center; transform-box:fill-box; animation:restored 850ms ease-out both; }
+@keyframes restored { from { transform:scale(.3); opacity:1; } to { transform:scale(6); opacity:0; } }
+.field-restored { background:radial-gradient(ellipse at center,rgba(118,240,178,.09),transparent 65%); }
+button:focus-visible,a:focus-visible,summary:focus-visible { outline:2px solid var(--amber); outline-offset:4px; }
+.flight-section { max-width:1420px; margin:auto; padding:64px 38px; border-top:1px solid var(--line); scroll-margin-top:20px; }
+.flight-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:26px; }
+.flight-heading h2 { margin:12px 0; font-size:clamp(38px,5vw,64px); letter-spacing:-.045em; text-transform:uppercase; }
+.flight-heading p:not(.eyebrow) { color:#b0c6bf; font:16px/1.6 Arial,sans-serif; margin:0; }
+.flight-medal-total { color:var(--amber); border:1px solid #665438; padding:16px; white-space:nowrap; font:11px ui-monospace,monospace; }
+.flight-missions { display:grid; grid-template-columns:repeat(6,1fr); border:1px solid var(--line); }
+.flight-missions button { min-height:100px; display:grid; gap:7px; padding:16px; text-align:left; background:#0b191e; color:var(--paper); border:0; border-right:1px solid var(--line); cursor:pointer; }
+.flight-missions button:last-child { border-right:0; }
+.flight-missions button[aria-pressed="true"] { background:#18372e; box-shadow:inset 0 -3px var(--mint-bright); }
+.flight-missions button:hover { background:#204137; }
+.flight-missions span { color:var(--mint-bright); font:11px ui-monospace,monospace; }
+.flight-missions small { color:var(--amber); }
+.flight-layout { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(310px,1fr); border:1px solid var(--line); border-top:0; }
+.flight-field { min-width:0; background:radial-gradient(ellipse at 50% 40%,#102b36,#071216 72%); }
+.flight-hud { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:20px; color:#aec6bc; font:11px/1.5 ui-monospace,monospace; }
+.flight-hud b { color:var(--paper); margin-left:5px; }
+.flight-field svg { width:100%; display:block; }
+.flight-grid line { stroke:#24433e; stroke-width:1; }
+.flight-grid circle { fill:#6e978b; }
+.flight-trail { fill:none; stroke:var(--mint-bright); stroke-width:3; opacity:.65; stroke-linejoin:round; }
+.flight-rock rect { fill:#38292c; stroke:var(--coral); stroke-width:1.5; }
+.flight-rock path { stroke:#ffad9e; stroke-width:2; fill:none; }
+.flight-home { fill:#bfd0c6; text-anchor:middle; font:10px ui-monospace,monospace; }
+.flight-beacon circle { fill:#15212a; stroke:#8a9ca6; stroke-width:2; }
+.flight-beacon text { fill:#f8f5e7; font:bold 12px Arial,sans-serif; text-anchor:middle; }
+.flight-beacon.next circle { stroke:var(--amber); fill:#3d321e; }
+.flight-beacon.connected circle { stroke:var(--mint-bright); fill:#173b2b; }
+.flight-beacon .beacon-halo { fill:none; stroke-dasharray:3 5; animation:beaconGlow 2s ease-in-out infinite; }
+@keyframes beaconGlow { 50% { opacity:.25; } }
+.flight-ship { transition:transform 170ms ease-out; pointer-events:none; }
+.flight-ship circle { fill:#102a36; stroke:#b2e4ff; stroke-width:1.5; }
+.flight-ship path { fill:#d2f0ff; stroke:#071216; stroke-width:1; }
+.flight-hint-dot { fill:none; stroke:#e0c4ff; stroke-width:3; stroke-dasharray:4 3; }
+.flight-status { min-height:66px; margin:0; padding:18px 22px; border-top:1px solid var(--line); color:var(--mint); font:14px/1.6 Arial,sans-serif; }
+.flight-won { background:radial-gradient(ellipse at center,#173e31,#071216 75%); }
+.flight-controls { border-left:1px solid var(--line); padding:26px; background:#0c1d22; }
+.flight-controls h3 { font-size:26px; margin:10px 0; }
+.flight-controls>p:not(.eyebrow) { color:#b0c6bf; font:14px/1.6 Arial,sans-serif; }
+.flight-coordinate { display:grid; gap:8px; padding:16px 0; border-block:1px solid var(--line); margin:20px 0; }
+.flight-coordinate span { font:10px/1.5 ui-monospace,monospace; color:#b0c6bf; }
+.flight-coordinate strong { color:var(--mint); font:20px ui-monospace,monospace; }
+.thruster-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.thruster-grid button { display:flex; justify-content:space-around; align-items:center; padding:12px; min-height:60px; background:#18372e; border:1px solid #517d68; color:var(--mint); cursor:pointer; }
+.thruster-grid button:hover:not(:disabled) { background:#28533e; }
+.thruster-grid button:active:not(:disabled) { background:#3c7051; }
+.thrust-arrow { font:28px Arial,sans-serif; display:inline-block; }
+.thruster-grid kbd { color:#b0c6bf; font:10px ui-monospace,monospace; }
+.thruster-grid button:disabled { opacity:.4; cursor:default; }
+.flight-tools { display:flex; gap:8px; margin-top:12px; }
+.flight-tools button,.flight-explain { flex:1; background:transparent; border:1px solid #50685f; padding:12px; color:#c1d4cb; cursor:pointer; font-size:11px; }
+.flight-tools button:disabled { opacity:.4; cursor:default; }
+.flight-controls .flight-rules { font-size:12px; color:#a9bdb4; }
+.flight-explain { width:100%; text-align:left; margin-top:12px; }
+.flight-result { margin:18px 0; padding:20px; border:1px solid var(--amber); background:#28281b; text-align:center; }
+.flight-result>span { color:var(--amber); font-size:32px; }
+.flight-result p { color:#d6d6be; font:14px/1.5 Arial,sans-serif; }
+.flight-result .primary-button { margin-top:15px; }
+.flight-save-note { color:#a3bab0; font:12px/1.6 Arial,sans-serif; }
+.learning-links { display:flex; flex-wrap:wrap; justify-content:center; gap:24px; padding:25px; border-top:1px solid var(--line); }
+.learning-links a { color:var(--mint); font:13px Arial,sans-serif; text-underline-offset:4px; }
+@media(max-width:1000px) {
+  .flight-layout { grid-template-columns:1fr; }
+  .flight-controls { border-left:0; border-top:1px solid var(--line); }
+  .flight-missions { grid-template-columns:repeat(3,1fr); }
+  .flight-missions button:nth-child(n+4) { border-top:1px solid var(--line); }
+  .flight-heading { flex-wrap:wrap; }
+}
+@media(max-width:780px) {
+  .game-intro { grid-template-columns:1fr; gap:20px; }
+  .game-intro>p:last-child { max-width:none; margin:0; }
+  .flight-section { padding:40px 20px; }
+  .flight-controls { padding:20px; }
+  .flight-missions button { padding:12px; min-height:108px; }
+  .flight-hud { padding:15px 10px; font-size:10px; gap:6px; }
+  .mission-rewards { padding:12px 16px; }
+  .game-section { padding-top:35px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .restore-ring,.flight-beacon .beacon-halo { animation:none; }
+  .restore-ring { display:none; }
+  .flight-ship { transition:none; }
+}
+@media(max-width:600px) {
+  .topbar { height:auto; min-height:100px; padding-block:16px; flex-wrap:wrap; gap:14px; }
+  .topbar-tools { width:100%; justify-content:space-between; }
+  .mode-switch button { min-height:36px; }
+  .completion-card { max-height:calc(100% - 24px); overflow-y:auto; }
+}
