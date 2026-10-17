@@ -20,7 +20,7 @@ The nearest dot is always derived from the level's basis at runtime rather than 
 
 ### Mission rewards
 
-A completed scored run earns **gold** for three exact dial locks with no wrong picks or hints, **silver** for three unassisted correct first picks, or **bronze** for finishing. The live clean-pick chain and an expanding restoration ring celebrate progress without changing the existing signal formula or score records. Practice is labelled separately and does not award a scored-run medal. A short, optional briefing introduces the controls; deeper explanations remain freely accessible.
+A completed scored run earns **gold** for three exact dial locks with no wrong picks or hints, **silver** for three unassisted correct first picks, or **bronze** for finishing. The live clean-pick chain and an expanding restoration ring celebrate progress without changing the existing signal formula or score records. Practice is labelled separately and does not award a scored-run medal. A short, optional briefing introduces the controls. Each solved signal field shows a brief explanation connecting the chosen candidate to whole-number basis steps and clarifying that the puzzle is an analogy. Deeper explanations remain freely accessible.
 
 ### Vector Flight
 
@@ -33,7 +33,7 @@ Jump straight to `#vector-flight`. Six missions introduce whole-number basis ste
 - Best medals persist locally under `lb:flight:medals:v1`; malformed or blocked storage cannot stop play. Existing sound controls and reduced-motion preferences apply to both games.
 - All missions are open from the start. Switching mission or pressing retry starts a fresh attempt; earned medals remain.
 
-The optional “Why does this work?” explanation connects navigation to `aU + bV`. This is a finite graph-navigation puzzle, not a shortest-vector solver or an attack on ML-KEM.
+Every completed mission shows a short lesson tied to the route just played: whole-number basis steps, subtraction, detours, slanted coordinates, cancellation, or returning to zero. The optional “Why does this work?” explanation gives more detail about `aU + bV`. This is a finite graph-navigation puzzle, not a shortest-vector solver or an attack on ML-KEM.
 
 ### Basis Match
 

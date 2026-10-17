@@ -4,6 +4,7 @@ export type FlightMission = {
   id: string;
   name: string;
   brief: string;
+  lesson: string;
   u: Vector;
   v: Vector;
   beacons: Vector[];
@@ -17,12 +18,12 @@ export const THRUSTERS: { label: string; key: string; delta: Vector }[] = [
   { label: "− V", key: "a", delta: [0, -1] },
 ];
 export const FLIGHT_MISSIONS: FlightMission[] = [
-  { id: "launch", name: "First flight", brief: "Your ship has two thrusters. Each tap takes one whole step. Reach beacon 1, then beacon 2.", u: [1, 0], v: [0, 1], beacons: [[2, 0], [2, 2]], rocks: [] },
-  { id: "slingshot", name: "Slingshot", brief: "The V thruster now points diagonally. Follow its arrow, not your old idea of up. Negative thrust brings you back.", u: [1, 0], v: [0.65, 1], beacons: [[-1, 2], [2, -1]], rocks: [] },
-  { id: "debris", name: "Debris run", brief: "Blocked landing points ahead. Fly around the marked debris and reconnect both beacons. Bumps do not cost a move.", u: [1, 0.2], v: [-0.25, 1], beacons: [[3, 0], [1, 2]], rocks: [[1, 0], [2, 0], [2, 1]] },
-  { id: "crossing", name: "Crossing currents", brief: "Two slanted directions, three stranded beacons. Find a route through the gaps; undo is always free.", u: [1, 0.3], v: [0.7, 1], beacons: [[-2, 2], [2, 1], [0, -2]], rocks: [[-1, 0], [-1, 1], [0, 2], [1, 1], [1, -1]] },
-  { id: "needle", name: "Thread the needle", brief: "The thrusters point almost the same way. Opposite thrusts can make a small sideways step. Try it.", u: [1, 0.15], v: [0.8, 0.65], beacons: [[2, -2], [-2, 2], [1, 1]], rocks: [[1, -1], [0, 1], [-1, 1]] },
-  { id: "home", name: "Bring them home", brief: "Reconnect the outer beacons, then return to HOME. Every point is still a whole-number combination of U and V.", u: [1, 0.35], v: [-0.5, 1], beacons: [[3, 2], [-2, -2], [0, 0]], rocks: [[1, 0], [1, 1], [2, 1], [0, -1], [-1, -1], [-1, 0]] },
+  { id: "launch", lesson: "You reached the beacons by adding whole-number steps of U and V. Those integer combinations are what make these landing points a lattice.", name: "First flight", brief: "Your ship has two thrusters. Each tap takes one whole step. Reach beacon 1, then beacon 2.", u: [1, 0], v: [0, 1], beacons: [[2, 0], [2, 2]], rocks: [] },
+  { id: "slingshot", lesson: "The slanted V thruster changed both screen coordinates at once. Negative thrust subtracts the same vector; the lattice still comes from whole-number combinations of U and V.", name: "Slingshot", brief: "The V thruster now points diagonally. Follow its arrow, not your old idea of up. Negative thrust brings you back.", u: [1, 0], v: [0.65, 1], beacons: [[-1, 2], [2, -1]], rocks: [] },
+  { id: "debris", lesson: "You detoured around forbidden landing points. The shortest permitted route here counts thruster taps on a finite board; it is not the shortest lattice vector or a cryptographic attack.", name: "Debris run", brief: "Blocked landing points ahead. Fly around the marked debris and reconnect both beacons. Bumps do not cost a move.", u: [1, 0.2], v: [-0.25, 1], beacons: [[3, 0], [1, 2]], rocks: [[1, 0], [2, 0], [2, 1]] },
+  { id: "crossing", lesson: "You combined two slanted basis directions to reach the beacons. Coordinates count steps along the basis vectors, even when those directions do not look like ordinary horizontal and vertical axes.", name: "Crossing currents", brief: "Two slanted directions, three stranded beacons. Find a route through the gaps; undo is always free.", u: [1, 0.3], v: [0.7, 1], beacons: [[-2, 2], [2, 1], [0, -2]], rocks: [[-1, 0], [-1, 1], [0, 2], [1, 1], [1, -1]] },
+  { id: "needle", lesson: "Opposite steps along similar directions can cancel much of each other. This is why long basis vectors can combine into a shorter vector; the game illustrates that geometry without solving a cryptographic instance.", name: "Thread the needle", brief: "The thrusters point almost the same way. Opposite thrusts can make a small sideways step. Try it.", u: [1, 0.15], v: [0.8, 0.65], beacons: [[2, -2], [-2, 2], [1, 1]], rocks: [[1, -1], [0, 1], [-1, 1]] },
+  { id: "home", lesson: "Your steps added up to zero when you returned HOME. Adding or subtracting whole basis vectors keeps you on the lattice. Your medal measures this navigation route, not cryptographic security.", name: "Bring them home", brief: "Reconnect the outer beacons, then return to HOME. Every point is still a whole-number combination of U and V.", u: [1, 0.35], v: [-0.5, 1], beacons: [[3, 2], [-2, -2], [0, 0]], rocks: [[1, 0], [1, 1], [2, 1], [0, -1], [-1, -1], [-1, 0]] },
 ];
 export function samePoint(a: Vector, b: Vector): boolean {
   return a[0] === b[0] && a[1] === b[1];

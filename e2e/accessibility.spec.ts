@@ -27,6 +27,8 @@ for (const width of [1366, 390]) {
     await nearest.focus();
     await page.keyboard.press('Enter');
     await expect(page.getByText('NEAREST DOT FOUND', { exact: true })).toBeVisible();
+    await expect(page.getByRole('note', { name:'What you just learned' })).toContainText('Whole-number combinations');
+    await expect(page.getByRole('note', { name:'What you just learned' })).toContainText('not a general shortest-vector solver');
     await page.locator('#advanced').scrollIntoViewIfNeeded();
     await page.locator('#expert').scrollIntoViewIfNeeded();
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
