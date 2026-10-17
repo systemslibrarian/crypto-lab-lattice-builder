@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import AdvancedMode from "./AdvancedMode";
 import ExpertMode from "./ExpertMode";
 import VectorFlight from "./VectorFlight";
+import BasisMatch from "./BasisMatch";
 import { createSound, type Sound } from "./sound";
 import {
   CAMPAIGN_LEVELS,
@@ -519,7 +520,8 @@ export default function Home() {
 
         <div className="play-launcher" aria-label="Choose your game">
           <a className="primary-button" href="#signal-game">RESTORE THE SIGNAL ↓</a>
-          <a className="ghost-button" href="#vector-flight">VECTOR FLIGHT · NEW →</a>
+          <a className="ghost-button" href="#vector-flight">VECTOR FLIGHT →</a>
+          <a className="ghost-button" href="#basis-match">BASIS MATCH · NEW →</a>
           <a className="learn-link" href="#behind-the-puzzle">Explore the mathematics</a>
         </div>
         <details className="game-howto">
@@ -751,6 +753,8 @@ export default function Home() {
 
       <VectorFlight play={play} />
 
+      <BasisMatch play={play} />
+
       <section className="lesson-section" id="behind-the-puzzle">
         <div className="lesson-heading">
           <p className="eyebrow">BEHIND THE PUZZLE</p>
@@ -773,7 +777,7 @@ export default function Home() {
 
       <ExpertMode />
 
-      <nav className="learning-links" aria-label="Explore further"><a href="#game">Signal puzzle</a><a href="#vector-flight">Vector Flight</a><a href="#advanced">Toy keys &amp; real ML-KEM</a><a href="#expert">Explore basis changes</a></nav>
+      <nav className="learning-links" aria-label="Explore further"><a href="#game">Signal puzzle</a><a href="#vector-flight">Vector Flight</a><a href="#basis-match">Basis Match</a><a href="#advanced">Toy keys &amp; real ML-KEM</a><a href="#expert">Explore basis changes</a></nav>
 
       <footer>
         <a className="brand" href="#game" aria-label="Lattice Builder home"><span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>LATTICE / BUILDER</span></a>
