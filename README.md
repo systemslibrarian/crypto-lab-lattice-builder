@@ -1,6 +1,6 @@
 # Lattice Builder
 
-Two ways to play with lattice geometry: a three-field signal puzzle and **Vector Flight**, a six-mission navigation game. Eight dots ring HOME, the red dot at the centre of a scrambled grid. Straighten the grid with two dials until the dots light up, then take the one nearest HOME.
+Three ways to play with lattice geometry: a three-field signal puzzle, **Vector Flight** navigation missions, and **Basis Match**, a six-round map-identification game. Eight dots ring HOME, the red dot at the centre of a scrambled grid. Straighten the grid with two dials until the dots light up, then take the one nearest HOME.
 
 The exhibit is intentionally honest about its limits: it is an analogy, not an implementation or simulation of ML-KEM. Real ML-KEM uses high-dimensional module-lattice arithmetic and the hardness of learning from noisy relationships.
 
@@ -34,6 +34,19 @@ Jump straight to `#vector-flight`. Six missions introduce whole-number basis ste
 - All missions are open from the start. Switching mission or pressing retry starts a fresh attempt; earned medals remain.
 
 The optional “Why does this work?” explanation connects navigation to `aU + bV`. This is a finite graph-navigation puzzle, not a shortest-vector solver or an attack on ML-KEM.
+
+### Basis Match
+
+Jump to `#basis-match`. Find which of three pairs of arrows generates exactly the same infinite lattice as the original map. Six rounds introduce swapped/reversed vectors, diagonal steps, missing points, equal-area impostors, and longer bases.
+
+- Three stars for a first-pick match without the lens; two for a first-pick match with the lens; one for finding the match after any wrong choices. No timer or lost lives.
+- The optional reveal lens shows every lattice point in the common viewport. Inverse-transformed viewport corners bound coefficient enumeration so skew bases do not falsely appear to omit points.
+- Correctness uses exact divisibility of small integer coordinates: both candidate generators must belong to the reference lattice, and both reference generators must belong to the candidate lattice. Equal determinant alone is not accepted as a match.
+- Six-round totals save under `lb:match:best:v1`. Blocked or malformed storage cannot prevent play. Scores do not leave the browser.
+- Replay keeps the same maps. Remix selects another deterministic seed. Share Challenge copies a URL with `?basis=<seed>#basis-match`, alongside the result for completed runs. A visible selectable-text fallback is provided when clipboard access fails; opening a link does not restore another player's score.
+- All maps use the same drawing scale. Choices work with touch, mouse, or ordinary keyboard focus and Enter/Space. The existing sound toggle and reduced-motion setting apply.
+
+This is a change-of-basis game, not a cryptographic attack or a proof based on a finite dot picture.
 
 ### Controls
 
