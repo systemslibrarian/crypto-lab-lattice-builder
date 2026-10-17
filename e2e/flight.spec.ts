@@ -24,6 +24,7 @@ for (const width of [1366, 390]) {
     await plusV.click();
     await expect(flight.getByRole('heading', { name: 'Gold flight!' })).toBeVisible();
     await expect(flight.locator('.flight-result')).toBeFocused();
+    await expect(flight.locator('.round-lesson')).toContainText('integer combinations');
     expect(await page.evaluate(() => JSON.parse(localStorage.getItem('lb:flight:medals:v1')!).launch)).toBe(3);
     await flight.getByRole('button', { name: 'RETRY', exact: true }).click();
     await flight.getByRole('button', { name: 'HINT', exact: true }).click();
@@ -68,4 +69,28 @@ test('flight works with denied local storage', async ({ page }) => {
   for (const key of ['+ U', '+ U', '+ V', '+ V']) await flight.getByRole('button', { name:`Thrust ${key}`, exact:true }).click();
   await expect(flight.getByRole('heading', { name:'Gold flight!' })).toBeVisible();
   await expect(flight.locator('.flight-save-note')).toContainText('Storage is unavailable');
+});
+
+
+test('every flight reveals its lesson after the final beacon', async ({page}) => {
+  const {FLIGHT_MISSIONS,flightRoute}=await import('../src/flight');
+  await page.goto('/#vector-flight');
+  const flight=page.locator('#vector-flight');
+  for(let i=0;i<FLIGHT_MISSIONS.length;i++) {
+    const mission=FLIGHT_MISSIONS[i];
+    await flight.locator('.flight-missions button').nth(i).click();
+    await expect(flight.locator('.round-lesson')).toHaveCount(0);
+    let position:[number,number]=[0,0];
+    for(const beacon of mission.beacons) {
+      const route=flightRoute(mission,position,beacon)!;
+      for(const point of route.slice(1)) {
+        const delta=[point[0]-position[0],point[1]-position[1]];
+        const label=delta[0]===1?'+ U':delta[0]===-1?'− U':delta[1]===1?'+ V':'− V';
+        await flight.getByRole('button',{name:`Thrust ${label}`,exact:true}).click();
+        position=point;
+      }
+    }
+    await expect(flight.locator('.round-lesson')).toBeVisible();
+    await expect(flight.locator('.round-lesson')).toContainText(mission.lesson);
+  }
 });

@@ -135,6 +135,7 @@ export default function VectorFlight({ play }: { play: (action: (sound: Sound) =
         <p className="flight-rules">Gold: {par} moves, no hints. Silver: at most {par + 4} moves. Bronze: get everyone home. Undo is free. No lives to lose.</p>
         {complete && <div className="flight-result" ref={resultRef} tabIndex={-1}>
           <span aria-hidden="true">✦</span><h3>{MEDALS[medal]} flight!</h3><p>{moves === par ? "You found a shortest route through every beacon." : `${moves - par} extra moves. Try a tighter route for your next medal.`}</p>
+          <p className="round-lesson"><strong>What you just learned</strong>{mission.lesson}</p>
           <button className="primary-button" onClick={() => enter((missionIndex + 1) % FLIGHT_MISSIONS.length)}>{missionIndex < FLIGHT_MISSIONS.length - 1 ? "NEXT MISSION →" : "FLY AGAIN →"}</button>
         </div>}
         <button className="flight-explain" aria-expanded={showHelp} onClick={() => setShowHelp(!showHelp)}>Why does this work? {showHelp ? "−" : "+"}</button>

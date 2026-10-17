@@ -24,6 +24,7 @@ for(const width of [1366,390]) test(`Basis Match expedition, replay, sharing and
     const pick=game.getByRole('button',{name:label(winner(i)),exact:true});
     await pick.focus(); await page.keyboard.press('Enter');
     await expect(game.locator('.match-status')).toContainText('is a match');
+    await expect(game.locator('.match-payoff')).toContainText(rounds[i].lesson);
     const next=game.getByRole('button',{name:i===5?'FINISH EXPEDITION':'NEXT ROUND →',exact:true});
     await expect(next).toBeFocused(); await next.click();
   }

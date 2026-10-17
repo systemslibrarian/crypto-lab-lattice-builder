@@ -822,3 +822,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible { outline:2px solid v
   .match-payoff,.match-actions { flex-direction:column; align-items:stretch; }
   .match-actions button { min-height:48px; }
 }
+
+/* Keep the teaching payoff beside the earned result, before continuing. */
+.round-lesson{margin:18px 0;padding:16px;border:1px solid #93d8bd55;border-radius:10px;background:#93d8bd0b;font-size:.85rem;line-height:1.6;color:var(--paper)}
+.round-lesson strong{display:block;margin-bottom:7px;color:#b8f3d9;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase}
+.round-lesson p{margin:0}

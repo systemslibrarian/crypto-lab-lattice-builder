@@ -726,6 +726,8 @@ export default function Home() {
                 )}
               </div>
 
+              {solved && <div className="round-lesson" role="note" aria-label="What you just learned"><strong>What you just learned</strong><p>You compared lengths to find a nearest point among eight candidates. Whole-number combinations of U and V produce those lattice points. Straightening the view made the comparison easier; this geometric puzzle is not a general shortest-vector solver or an ML-KEM attack.</p></div>}
+
               {solved ? (
                 <button className="primary-button" onClick={nextLevel} disabled={complete}>
                   {levelIndex === levels.length - 1 ? "FINISH RUN" : "ENTER NEXT FIELD"}<span>→</span>
