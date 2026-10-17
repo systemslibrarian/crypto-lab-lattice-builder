@@ -59,6 +59,14 @@ jobs:
       - name: Gameplay and accessibility controls
         run: npm run test:e2e -- --workers=1
 
+      - name: Retain gameplay screenshots
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: beacon-run-browser-evidence
+          path: test-results/
+          if-no-files-found: warn
+
       - name: Configure Pages
         uses: actions/configure-pages@v6
 

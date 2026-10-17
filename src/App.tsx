@@ -519,6 +519,7 @@ export default function Home() {
         </header>
 
         <div className="play-launcher" aria-label="Choose your game">
+          <a className="ghost-button" href="./">BEACON RUN →</a>
           <a className="primary-button" href="#signal-game">RESTORE THE SIGNAL ↓</a>
           <a className="ghost-button" href="#vector-flight">VECTOR FLIGHT →</a>
           <a className="ghost-button" href="#basis-match">BASIS MATCH · NEW →</a>

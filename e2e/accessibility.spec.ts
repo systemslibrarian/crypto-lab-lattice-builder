@@ -9,7 +9,7 @@ for (const width of [1366, 390]) {
     const errors: string[] = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-    await page.goto('/');
+    await page.goto('/?mode=classic');
     await expect(page.getByRole('heading', { name: 'Eight dots. Take the nearest.' })).toBeVisible();
     await page.getByRole('button', { name: 'DAILY', exact: true }).click();
     await expect(page.getByRole('button', { name: 'DAILY', exact: true })).toHaveAttribute('aria-pressed', 'true');
