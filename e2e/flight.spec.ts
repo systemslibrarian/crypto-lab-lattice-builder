@@ -48,7 +48,7 @@ for (const width of [1366, 390]) {
 }
 
 test('practice hints and misses are free; campaign still charges', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?mode=classic');
   await page.getByRole('button', { name:'PRACTICE', exact:true }).click();
   await page.getByRole('button', { name:/USE THE SECRET/ }).click();
   await expect(page.locator('.score-readout strong')).toHaveText('3600');
