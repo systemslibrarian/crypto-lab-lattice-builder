@@ -24,6 +24,9 @@ for (const width of [320,390,768,1366]) test(`Beacon Run responsive play and res
   page.on('console', e => { if (e.type() === 'error') errors.push(e.text()); });
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Two arrows. Your way out.' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Where this leads' }).getByRole('link', { name: /Lattice Gentle/ })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Where this leads' }).getByRole('link', { name: /Basis Match/ })).toHaveAttribute('href','?mode=classic#basis-match');
+  await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: /All games/ })).toHaveAttribute('href','https://crypto-lab.systemslibrarian.dev/games/');
   mkdirSync('test-results/beacon-shots', { recursive: true });
   await page.screenshot({ path: `test-results/beacon-shots/ready-${width}.png`, fullPage:true });
   await page.getByRole('button', { name: 'Play Beacon Run' }).click();
