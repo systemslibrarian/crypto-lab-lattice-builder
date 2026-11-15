@@ -107,7 +107,7 @@ The point is what happens as you try. The leftover numbers scramble but never sh
 
 Getting seven of eight right is *worse* than getting none. There is no hill to climb, which is why exhaustive search is the only method left, and why the difficulty scales the way it does.
 
-**Turn it up.** The same sum, the same test and the same code at larger n. Times use the search rate the visitor's own browser just measured:
+**Turn it up.** The same sum, the same test and the same code at larger n. The coefficient range widens with the ladder as well — each coefficient is drawn from −1…1 at n=4, −2…2 at n=8, 16 and 32, and −3…3 at n=256 (ML-KEM-512's η₁ = 3) — so the counts below are 3⁸, 5¹⁶, 5³², 5⁶⁴ and 7⁵¹². Times use the search rate the visitor's own browser just measured:
 
 | | possible private keys | time to try them all |
 | --- | --- | --- |
