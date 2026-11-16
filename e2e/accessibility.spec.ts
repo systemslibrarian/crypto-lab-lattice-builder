@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { auditControlNames, formatControlNameFailures } from './control-names';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
@@ -45,6 +46,10 @@ for (const width of [1366, 390]) {
       return result.violations.map((v: any) => ({ id: v.id, targets: v.nodes.map((n: any) => n.target) }));
     });
     expect(violations).toEqual([]);
+    // axe's `label` rule accepts a bare `placeholder` as an accessible name, so a
+    // deleted label can leave this gate green. See `control-names.ts`.
+    expect(formatControlNameFailures(await auditControlNames(page)),
+      `form controls named only by placeholder/title at ${width}px`).toEqual([]);
     expect(errors).toEqual([]);
   });
 }
