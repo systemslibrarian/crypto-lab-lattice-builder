@@ -124,7 +124,8 @@ export function decodeTrial(seedIndex: number): DecodeTrial {
 // 3^d - 1 one-step neighbours in d dimensions. The eight dots are the d=2 case.
 export const DIMENSIONS = [2, 3, 4, 8, 16, 64, 512];
 export function neighbourCount(d: number): string {
-  const log = d * Math.log10(3);
-  if (log < 15) return (3 ** d - 1).toLocaleString("en-US");
-  return `10^${Math.round(log)}`;
+  const count = 3n ** BigInt(d) - 1n;
+  if (count <= BigInt(Number.MAX_SAFE_INTEGER)) return count.toLocaleString("en-US");
+  const scientific = count.toLocaleString("en-US", { notation: "scientific", maximumFractionDigits: 2 });
+  return `3^${d} − 1 (≈ ${scientific.replace("E", " × 10^")})`;
 }

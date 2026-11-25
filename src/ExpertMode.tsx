@@ -58,7 +58,7 @@ export default function ExpertMode() {
       const t = decodeTrial(i);
       if (t.secretOk) s += 1;
       if (t.publicOk) p += 1;
-      if (rows.length < 4 && !t.publicOk) rows.push(t);
+      if (rows.length < 4) rows.push(t);
     }
     return { s, p, rows };
   }, [trials]);
@@ -179,8 +179,7 @@ export default function ExpertMode() {
         <div className="adv-head"><span>05 / WHAT A GOOD DESCRIPTION BUYS</span><h3>Decoding with each one</h3></div>
         <p className="adv-copy">
           A short description is not a trophy — it is a working tool. Take a point that sits slightly off the lattice, write it in
-          a description's own coordinates, round each coordinate to a whole number, and rebuild. With short, near-square vectors that
-          lands on the nearest dot. With long, skewed ones it misses. Same algorithm either way; only the description differs.
+          a description's own coordinates, round each coordinate to a whole number, and rebuild. Try the same 400 targets with each basis. A trial counts as a match when rounding recovers the original lattice point.
         </p>
         <button className="primary-button" onClick={() => setTrials(400)}>DECODE 400 OFF-LATTICE POINTS<span>→</span></button>
         {decode && (
@@ -189,19 +188,20 @@ export default function ExpertMode() {
               <div><span>SECRET DESCRIPTION</span><strong className="hit">{decode.s} / {trials}</strong></div>
               <div><span>PUBLIC DESCRIPTION</span><strong className="wrong">{decode.p} / {trials}</strong></div>
             </div>
+            <h4>First four trials</h4>
             <div className="decode-rows">
               {decode.rows.map((r, i) => (
                 <div className="decode-row" key={i}>
                   <span>({r.target.join(", ")})</span>
                   <em>sits {len(r.offset).toFixed(1)} from dot ({r.truth.join(", ")})</em>
-                  <b className="ok">secret → ({r.secret.join(", ")})</b>
-                  <b className="bad">public → ({r.publicGuess.join(", ")})</b>
+                  <b className={r.secretOk ? "ok" : "bad"}>secret → ({r.secret.join(", ")}) · {r.secretOk ? "match" : "miss"}</b>
+                  <b className={r.publicOk ? "ok" : "bad"}>public → ({r.publicGuess.join(", ")}) · {r.publicOk ? "match" : "miss"}</b>
                 </div>
               ))}
             </div>
             <p className="adv-note">
-              Same lattice, same targets, same rounding. The only difference is which description does the arithmetic — and the
-              long, skewed one lands on a dot hundreds of units away. Anyone able to turn the second description into the first could do this too, which is exactly what an attack on a lattice scheme is trying to achieve.
+              The public basis recovered the original point in {decode.p} of {trials} trials and missed it in {trials - decode.p}.
+              Both bases used the same targets and the same rounding rule.
             </p>
           </>
         )}
@@ -211,8 +211,7 @@ export default function ExpertMode() {
         <div className="adv-head"><span>06 / WHY TWO DIMENSIONS LIE</span><h3>Eight dots is 3² − 1</h3></div>
         <p className="adv-copy">
           The eight dots were never an arbitrary number. They are every non-zero combination of two vectors with coefficients
-          −1, 0 or +1 — that is 3² − 1 = 8. The same definition in d dimensions gives 3<sup>d</sup> − 1, and that is what you would
-          have to look at to pick the nearest by eye.
+          −1, 0 or +1 — that is 3² − 1 = 8. The same definition in d dimensions gives 3<sup>d</sup> − 1 one-step neighbours. The table counts just those choices.
         </p>
         <div className="ladder">
           <div className="ladder-row is-head"><span>DIMENSIONS</span><span>ONE-STEP NEIGHBOURS</span><span></span></div>
@@ -220,7 +219,7 @@ export default function ExpertMode() {
             <div className={`ladder-row static ${d === 512 ? "is-real" : ""}`} key={d}>
               <span><b>d = {d}</b>{d === 2 ? " — the board upstairs" : d === 512 ? " — ML-KEM-512" : ""}</span>
               <span>{neighbourCount(d)}</span>
-              <span>{d === 2 ? "you can look at all of them" : d <= 8 ? "still countable" : d <= 64 ? "no" : "there is nothing to look at"}</span>
+              <span>{d === 2 ? "you can look at all of them" : d <= 8 ? "can be enumerated on screen" : "too many to inspect by eye"}</span>
             </div>
           ))}
         </div>

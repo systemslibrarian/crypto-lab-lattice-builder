@@ -53,3 +53,36 @@ for (const width of [1366, 390]) {
     expect(errors).toEqual([]);
   });
 }
+
+test('expert examples and neighbour counts agree with the displayed coordinates and dimensions', async ({ page }) => {
+  await page.goto('./?mode=classic');
+  const expert = page.locator('#expert');
+  await expert.getByRole('button', { name: /decode 400 off-lattice points/i }).click();
+  await expect(expert.getByRole('heading', { name: 'First four trials' })).toBeVisible();
+  const rows = expert.locator('.decode-row');
+  await expect(rows).toHaveCount(4);
+  let publicMatches = 0;
+  for (const row of await rows.all()) {
+    const target = (await row.locator('em').innerText()).match(/from dot (\([^)]*\))/)![1];
+    for (const guess of await row.locator('b').all()) {
+      const value = await guess.innerText();
+      const matched = value.includes(target);
+      await expect(guess).toHaveClass(matched ? 'ok' : 'bad');
+      expect(value.endsWith(matched ? 'match' : 'miss')).toBe(true);
+      if (value.startsWith('public') && matched) publicMatches++;
+    }
+  }
+  expect(publicMatches).toBe(1);
+  await expect(expert).toContainText('133 of 400 trials and missed it in 267');
+  for (const row of await expert.locator('.ladder-row.static').all()) {
+    const cells = row.locator(':scope > span');
+    const d = Number((await cells.first().innerText()).match(/d = (\d+)/)![1]);
+    const exact = 3n ** BigInt(d) - 1n;
+    if (exact <= BigInt(Number.MAX_SAFE_INTEGER)) {
+      await expect(cells.nth(1)).toHaveText(exact.toLocaleString('en-US'));
+    } else {
+      const [mantissa, exponent] = Number(exact).toExponential(2).split('e+');
+      await expect(cells.nth(1)).toHaveText(`3^${d} − 1 (≈ ${mantissa} × 10^${exponent})`);
+    }
+  }
+});
