@@ -82,15 +82,13 @@ Sound is synthesised in the browser with WebAudio — no audio files and no netw
 
 ## Advanced mode
 
-Below the game the page stops using an analogy and runs the real thing.
+The advanced section opens with a small polynomial-module example. Its parameters are different from the standardized ML-KEM parameter sets.
 
-**How the game relates to ML-KEM.** The board is a *lattice*: every dot is a whole-number combination of two vectors. The game asks which dot is nearest HOME, which is the Shortest Vector Problem.
+**How the game relates to ML-KEM.** The classic signal board asks which of eight displayed, nonzero neighbours lies closest to HOME. The shortest vector problem (SVP) asks for a shortest nonzero vector across the entire lattice. A shorter vector can lie outside the displayed set when the basis is skewed.
 
-ML-KEM does not ask that exact question. It hides its key by parking a point just off a lattice: `t = A·s + e` means `t` is not a lattice point but sits a short hop from one, displaced by the small error `e`. Recovering `s` means working out *which lattice point `t` is nearest to*. Same lattice, same act of finding the nearest dot, asked about a different spot.
+The advanced example forms the public value `t = A·s + e` using polynomial arithmetic modulo the toy parameters. The error vector changes the product by a small amount in centered coordinates. Its coefficients can be zero. In the simple scalar example `A = 1, s = 2, e = 1` modulo 7, `t = 3` is itself another multiple of `A`. Adding a small error does not establish that a point lies outside a lattice.
 
-Measured on the instance the page ships: `t` sits 1.73 from its nearest lattice point — exactly ‖e‖ — while the second nearest is 8.54 away and a typical one is 23.64. It hugs one point and is nowhere near the rest.
-
-Being precise about the difference: the board is SVP, ML-KEM rests on Module Learning-With-Errors, and those are cousins rather than the same problem. What ties them together is not hand-waving — the best known attacks on LWE work by building a lattice out of `A` and `t` and hunting for a short vector in it. Finding short vectors *is* the attack, which is why the exhibit spends its time teaching you to look for one.
+The three displayed distances summarize the finite set of candidate products in the preset example. The game gives geometric intuition for short vectors and small errors. ML-KEM uses noisy equations over a polynomial module. Its encapsulation key includes a matrix-generating seed alongside the encoded public vector. [FIPS 203, Algorithm 13](https://doi.org/10.6028/NIST.FIPS.203) gives the key-generation arithmetic used in the standard.
 
 **Break a real private key.** A Module-LWE instance with exactly ML-KEM's shape at n=4, k=2, q=29. Everything an eavesdropper gets is on screen: the shared matrix `A` and the public key `t`, where `t = A·s + e`. The private key `s` is eight coefficients, each −1, 0 or +1, so only 6,561 private keys exist.
 

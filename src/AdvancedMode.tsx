@@ -180,22 +180,19 @@ export default function AdvancedMode() {
         <div className="bridge-cols">
           <div>
             <span className="bridge-tag">THE BOARD</span>
-            <p>Every dot was a whole-number combination of two vectors — that set of dots is a <b>lattice</b>. You were asked: <b>which dot is nearest HOME?</b> In two dimensions you answer by looking.</p>
+            <p>The classic signal board asks which of eight displayed, nonzero neighbours is closest to HOME. Each dot is a whole-number combination of the two basis vectors. A shorter vector can lie beyond those eight choices.</p>
           </div>
           <div>
             <span className="bridge-tag">DOWN HERE</span>
-            <p>Every combination of <b>A</b>'s entries is a dot of a lattice too. The public key <b>t</b> is <em>not</em> one of those dots — it is a spot parked just off one, pushed there by the error <b>e</b>. The question is: <b>which dot is nearest t?</b> Answer it and you have <b>s</b>.</p>
+            <p>The toy module computes <b>t = A·s + e</b> in modular polynomial arithmetic. The error adds small coefficients to the product. A zero error leaves the product unchanged.</p>
           </div>
         </div>
         <p className="adv-copy">
-          Same lattice, same act, different spot. That is the whole connection, and it is why measuring distances was the right instinct upstairs.
-          {geometry && <> In this instance <b>t</b> sits <b>{geometry.nearest.toFixed(1)}</b> from its nearest dot — that gap is exactly the size of <b>e</b> — while the second nearest is <b>{geometry.second.toFixed(1)}</b> away and a typical one is <b>{geometry.typical.toFixed(1)}</b>. It is hugging one dot and nowhere near the rest.</>}
+          Try a scalar example modulo 7. With A = 1, s = 2 and e = 1, the public value is 3. It is also 1 × 3 modulo 7. Adding an error need not move the result outside the set of products.
+          {geometry && <> For this page’s finite set of toy products, the smallest centered distance to <b>t</b> is <b>{geometry.nearest.toFixed(1)}</b>, the second smallest is <b>{geometry.second.toFixed(1)}</b>, and the median is <b>{geometry.typical.toFixed(1)}</b>.</>}
         </p>
         <p className="adv-note">
-          Being precise: the board upstairs is the Shortest Vector Problem, ML-KEM rests on Module Learning-With-Errors, and those
-          are cousins rather than the same problem. What ties them together is not hand-waving — the best known attacks on
-          Learning-With-Errors work by building a lattice out of <b>A</b> and <b>t</b> and hunting for a short vector in it. Finding
-          short vectors is the attack. That is why this exhibit spends its time teaching you to look for one.
+          SVP asks for a shortest nonzero vector over the whole lattice. ML-KEM uses noisy equations over a polynomial module. Its encapsulation key includes an encoded public vector and a seed for the matrix. <a href="https://doi.org/10.6028/NIST.FIPS.203">FIPS 203, Algorithm 13</a> gives the standardized construction.
         </p>
       </div>
 
