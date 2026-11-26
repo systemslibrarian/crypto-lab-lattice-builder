@@ -119,7 +119,7 @@ The bottom row is not an analogy for ML-KEM-512 — it is ML-KEM-512's actual sh
 
 **The real thing.** A complete ML-KEM implementation (FIPS 203) runs in the page. Two people who have never met need one shared secret over a channel an eavesdropper is reading in full; they cannot simply send it, which is the whole problem.
 
-Running an exchange fills in every value, split into the two groups that matter. Sent in the clear: `t`, the public key; `ρ`, the seed both sides expand into the shared matrix `A`, so `A` never has to be transmitted; and `c`, the scrambled package. Never sent: `s`, the receiver's private key, and the 32-byte shared secret both sides end up holding. That `t` is the same kind of object as the one broken above — a public key with a small secret inside it — differing only in size.
+The exchange displays the encoded public vector and 32-byte matrix seed that make up the encapsulation key, followed by the ciphertext. The receiver’s full decapsulation key contains the encoded secret vector, a copy of the encapsulation key, its 32-byte SHA3-256 hash, and a 32-byte fallback secret. For ML-KEM-512 these fields occupy 768 + 800 + 32 + 32 = 1,632 bytes. Select ML-KEM-768 or ML-KEM-1024 to see the corresponding lengths. Both parties derive a 32-byte shared secret. [FIPS 203, Algorithms 16 and 18](https://doi.org/10.6028/NIST.FIPS.203)
 
 Flipping a bit of the ciphertext on screen shows implicit rejection: decapsulation does not fail or complain, it returns a *different* key derived from a value only the receiver holds, so a tampering attacker learns nothing from the outcome.
 
@@ -135,7 +135,7 @@ The exhibit repeatedly says the secret is "a better description of the same latt
 
 Through the secret description the eight one-step neighbours include the genuine shortest vector in the lattice, 30.3 — the whole ring fits inside the space the public description crosses in a single step. Through the public description the best of the eight is 126.0, a 4.2× overstatement, and the real answer sits at `3·b₁ − 5·b₂`, nowhere near one step out. Same dots; one lens shows the answer and the other hides it.
 
-**What the secret does.** Babai rounding: write an off-lattice point in a description's own coordinates, round each to a whole number, rebuild. Over 400 targets, the secret description decodes 400/400; the public description recovers 133/400. The exhibit shows the first four trials, including the public basis’s first match. Same lattice, same targets, same algorithm — only the description differs. That gap is the entire value of a private key.
+**What the short basis does.** Independent coordinate rounding: write an off-lattice point in a description's own coordinates, round each to a whole number, rebuild. Over 400 targets, the secret description decodes 400/400; the public description recovers 133/400. The exhibit shows the first four trials, including the public basis’s first match. Same lattice, same targets, same algorithm — only the description differs. These counts apply to the 400 prescribed targets. For (14, 10), even the short basis rounds to (0, 0), with squared distance 296; the lattice point (30, 4) is closer, at 292.
 
 **Why two dimensions lie.** The eight dots were never arbitrary: they are every non-zero combination of two vectors with coefficients −1, 0 or +1, which is 3² − 1 = 8. The same definition in d dimensions gives 3ᵈ − 1:
 
@@ -146,7 +146,7 @@ Through the secret description the eight one-step neighbours include the genuine
 | 16 | 43,046,720 |
 | 512 — ML-KEM-512 | 3⁵¹² − 1 ≈ 1.93 × 10²⁴⁴ |
 
-Turning a bad description into a good one is lattice reduction. In two dimensions it is quick and exact, which is why the trick above is a party piece. As the dimension climbs the best known algorithms cost more than the security level they attack, and that is the bet ML-KEM's parameters are chosen to win.
+Turning a bad description into a good one is lattice reduction. In two dimensions it is quick and exact, which is why the trick above is a party piece. Counting the displayed neighbourhood gives no ML-KEM attack cost or security level.
 
 ## Publish on GitHub Pages
 

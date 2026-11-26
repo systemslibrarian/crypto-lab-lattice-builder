@@ -74,6 +74,8 @@ test('expert examples and neighbour counts agree with the displayed coordinates 
   }
   expect(publicMatches).toBe(1);
   await expect(expert).toContainText('133 of 400 trials and missed it in 267');
+  await expect(expert).toContainText('squared distance 296');
+  await expect(expert).toContainText('squared distance 292');
   for (const row of await expert.locator('.ladder-row.static').all()) {
     const cells = row.locator(':scope > span');
     const d = Number((await cells.first().innerText()).match(/d = (\d+)/)![1]);
@@ -85,4 +87,30 @@ test('expert examples and neighbour counts agree with the displayed coordinates 
       await expect(cells.nth(1)).toHaveText(`3^${d} − 1 (≈ ${mantissa} × 10^${exponent})`);
     }
   }
+});
+
+
+test('the private-key fields match each parameter set and a failed rerun retires the exchange', async ({ page }) => {
+  await page.goto('./?mode=classic#advanced');
+  const layout = page.getByTestId('dk-layout');
+  const exchange = page.getByRole('button', { name: /run the exchange|run it again/i });
+  for (const [name, vector, publicKey, total] of [
+    ['ML-KEM-512', 768, 800, 1632],
+    ['ML-KEM-768', 1152, 1184, 2400],
+    ['ML-KEM-1024', 1536, 1568, 3168],
+  ] as const) {
+    await page.getByRole('button', { name, exact: true }).click();
+    await expect(layout).toContainText(`encoded secret vector (${vector} bytes)`);
+    await expect(layout).toContainText(`encapsulation key (${publicKey} bytes)`);
+    await expect(page.locator('.wire-group.is-private')).toContainText(`${total}-byte decapsulation key`);
+    await exchange.click();
+    await expect(page.locator('.wire-group.is-private')).toContainText('Both parties derived the same 32-byte shared secret');
+  }
+  await page.evaluate(() => {
+    Object.defineProperty(crypto, 'getRandomValues', { value() { throw new Error('Random source unavailable'); } });
+  });
+  await exchange.click();
+  await expect(page.getByText('This exchange could not run:', {exact: false})).toBeVisible();
+  await expect(page.locator('.wire-group.is-private')).not.toContainText('Both parties derived');
+  await expect(page.getByRole('button', { name: 'FLIP ONE BIT OF THE CIPHERTEXT' })).toBeDisabled();
 });

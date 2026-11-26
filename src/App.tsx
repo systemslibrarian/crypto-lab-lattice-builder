@@ -740,7 +740,7 @@ export default function Home() {
                   <span className="pulse-glyph">⌁</span>
                 </button>
               )}
-              <p className="hint-copy">In this game the secret marks where the dials belong — it does not pick the dot. Real ML-KEM keeps a different kind of secret: a short list of small numbers that only the receiver has, and that is enough to strip away the noise hiding the message.</p>
+              <p className="hint-copy">In this game the secret marks where the dials belong. In ML-KEM, an encoded secret polynomial vector is one part of the receiver’s decapsulation key. Run the exchange below to see how the receiver uses that key to derive the shared secret.</p>
               <button
                 className={`reset-run ${confirmReset ? "armed" : ""}`}
                 onClick={askReset}

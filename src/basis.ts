@@ -67,10 +67,9 @@ export function trueShortest(b: Basis, reach = 40) {
   return r;
 }
 
-// Babai rounding: write the target in the basis's own coordinates, round each to
-// a whole number, and rebuild. With short near-orthogonal vectors this lands on
-// the nearest lattice point; with long skewed ones it misses badly. Same lattice,
-// same algorithm -- this is why holding the good description is worth something.
+// Round both coordinates in the given basis independently. This recovers the
+// source point for all the short-basis offsets in this exercise, but need
+// not give a nearest lattice point for an arbitrary target.
 export function babai(b: Basis, target: Vec) {
   const d = det(b);
   const x = (target[0] * b.v[1] - target[1] * b.v[0]) / d;

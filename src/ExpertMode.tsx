@@ -74,10 +74,9 @@ export default function ExpertMode() {
       <div className="correction">
         <h4>FIRST, WHAT THIS IS NOT</h4>
         <p>
-          An ML-KEM private key is <b>not</b> what this section shows. Its secret is the small list of numbers <b>s</b> you saw in
-          the section above — nothing more exotic. What follows is background: it explains why a lattice problem can be easy or
-          impossible depending on how the lattice is written down, which is the thing an attacker is trying to change and the
-          reason “hard” is a meaningful claim about ML-KEM. Worth understanding; not the shape of the key.
+          Both bases on this board are visible. Switching between them shows how coordinates affect rounding.
+          In ML-KEM the receiver holds a decapsulation key containing an encoded secret polynomial vector.
+          Decapsulation uses modular polynomial arithmetic. This two-dimensional board illustrates a different calculation.
         </p>
       </div>
 
@@ -201,7 +200,10 @@ export default function ExpertMode() {
             </div>
             <p className="adv-note">
               The public basis recovered the original point in {decode.p} of {trials} trials and missed it in {trials - decode.p}.
-              Both bases used the same targets and the same rounding rule.
+              Both bases used the same targets and the same rounding rule. A perfect score on these small offsets does
+              not guarantee the closest lattice point for every target. Try (14, 10) on paper: independent coordinate
+              rounding with the short basis gives (0, 0), at squared distance 296. The lattice point (30, 4) is closer,
+              at squared distance 292.
             </p>
           </>
         )}
@@ -224,9 +226,9 @@ export default function ExpertMode() {
           ))}
         </div>
         <p className="adv-note">
-          Turning a long, skewed description into a short, square one is called lattice
-          reduction, and it is the main tool in every serious attack on a lattice scheme. In two dimensions it is quick and exact, which is why everything above was a party piece. As the dimension climbs the best known reduction algorithms cost more than
-          the security level they are attacking, which is precisely the bet ML-KEM's parameters are chosen to win.
+          Lattice reduction finds a basis of shorter, more nearly orthogonal vectors for the same lattice.
+          The table counts coefficient choices in a particular neighbourhood. It does not measure the work needed
+          to attack ML-KEM or establish a security level.
         </p>
       </div>
     </section>

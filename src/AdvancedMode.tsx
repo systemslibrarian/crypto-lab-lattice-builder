@@ -168,10 +168,9 @@ export default function AdvancedMode() {
       <div className="stakes">
         <span>WHY THIS MATTERS</span>
         <p>
-          Public-key cryptography publishes one number and keeps its partner secret. Here the published half is <b>t</b>; the
-          secret half is <b>s</b>. Anyone who can work backwards from <b>t</b> to <b>s</b> holds the private key and can read
-          everything sent to its owner. Every rung below is the same sum — <b>t = A·s + e</b> — and the only question is
-          whether working backwards is possible. Below, it is. That is the point.
+          The toy example publishes the matrix <b>A</b> and vector <b>t</b>. The small secret vector <b>s</b> and
+          error <b>e</b> satisfy <b>t = A·s + e</b> modulo the chosen modulus. In the real exchange below, the
+          receiver stores an encoded secret vector as one component of a larger decapsulation key.
         </p>
       </div>
 
@@ -399,6 +398,8 @@ function Instrument() {
       setTampered(null);
       setFailure(null);
     } catch (error) {
+      setSession(null);
+      setTampered(null);
       setFailure(error instanceof Error ? error.message : String(error));
     }
   }
@@ -413,6 +414,7 @@ function Instrument() {
       setTampered({ k: decaps(session.dk, bad, session.paramSet), at });
       setFailure(null);
     } catch (error) {
+      setTampered(null);
       setFailure(error instanceof Error ? error.message : String(error));
     }
   }
@@ -457,7 +459,7 @@ function Instrument() {
         <h4>SENT IN THE CLEAR · AN EAVESDROPPER GETS ALL OF THIS</h4>
         <div className="kv">
           <div>
-            <span>t <em>— the public key</em></span>
+            <span>t̂ <em>— encoded public vector</em></span>
             <strong>{session ? hex(session.ek.subarray(0, 384 * k)) : "—"}</strong>
             <em>{384 * k} bytes</em>
           </div>
@@ -473,20 +475,18 @@ function Instrument() {
           </div>
         </div>
         <p className="adv-note">
-          The first two together are the encapsulation key, {size.ek} bytes. That <b>t</b> is the same kind of object you broke
-          above — a public key with a small secret hidden inside it — and <b>&rho;</b> is the seed both sides expand into the
-          shared matrix <b>A</b>, so it never has to be transmitted. The difference is only size: recovering this <b>s</b> is the
-          bottom row of the table above.
+          The {384 * k}-byte encoded vector and the 32-byte seed together form the {size.ek}-byte encapsulation key.
+          The sender and receiver expand the seed into the same public matrix <b>A</b>.
         </p>
       </div>
 
       <div className="wire-group is-private">
-        <h4>NEVER SENT · THIS IS WHAT THE WIRE NEVER CARRIES</h4>
+        <h4>PRIVATE KEY COMPONENT AND DERIVED SHARED SECRETS</h4>
         <div className="kv">
           <div>
-            <span>s <em>— receiver's private key</em></span>
+            <span>ŝ <em>— encoded secret vector</em></span>
             <strong className="private">{session ? hex(session.dk.subarray(0, 384 * k)) : "—"}</strong>
-            <em>inside {size.dk} bytes</em>
+            <em>{384 * k} bytes inside the {size.dk}-byte decapsulation key</em>
           </div>
           <div>
             <span>SENDER'S SHARED SECRET</span>
@@ -499,11 +499,15 @@ function Instrument() {
             <em>{session ? (agree ? "identical" : "MISMATCH") : "32 bytes"}</em>
           </div>
         </div>
+        <p className="adv-note" data-testid="dk-layout">
+          The decapsulation key stores four fields in order: the encoded secret vector ({384 * k} bytes), a copy of the
+          encapsulation key ({size.ek} bytes), its SHA3-256 hash (32 bytes), and a secret fallback value (32 bytes).
+          The receiver uses the fallback when a ciphertext fails the internal check. <a href="https://doi.org/10.6028/NIST.FIPS.203">FIPS 203, Algorithms 16 and 18</a>
+        </p>
         {session && (
           <p className="adv-note">
-            Both sides hold the same 32 bytes after {session.ms.toFixed(1)} ms, and neither ever put them on the wire. An
-            eavesdropper who copied every byte in the panel above cannot produce them, because doing so means recovering
-            <b> s</b> from <b>t</b> — the problem you just watched run out of universe.
+            {agree ? "Both parties derived the same 32-byte shared secret" : "The shared secrets differ"} in {session.ms.toFixed(1)} ms.
+            Only the encapsulation key and ciphertext were needed on the wire for this exchange.
           </p>
         )}
       </div>
