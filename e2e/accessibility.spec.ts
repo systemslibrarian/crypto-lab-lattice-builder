@@ -114,3 +114,15 @@ test('the private-key fields match each parameter set and a failed rerun retires
   await expect(page.locator('.wire-group.is-private')).not.toContainText('Both parties derived');
   await expect(page.getByRole('button', { name: 'FLIP ONE BIT OF THE CIPHERTEXT' })).toBeDisabled();
 });
+
+test('scaling rows show coefficient support and the ML-KEM category', async ({ page }) => {
+  await page.goto('./?mode=classic#advanced');
+  const table = page.locator('#advanced .ladder');
+  for (const [sample, count] of [['n=16 k=2', '5^32'], ['n=256 k=2', '7^512']]) {
+    await table.getByRole('button', { name: new RegExp(sample) }).click();
+    await expect(page.locator('.rung-payout')).toContainText(count);
+  }
+  await expect(page.locator('.rung-payout')).toContainText('512 positions');
+  await expect(page.locator('#advanced')).toContainText('nonuniform distribution');
+  await expect(table).not.toContainText('TIME TO TRY');
+});

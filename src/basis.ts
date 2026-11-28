@@ -46,25 +46,30 @@ export function shortestVisible(b: Basis) {
   return neighbours(b)[0];
 }
 
-// Brute force the genuine shortest non-zero lattice vector, so the page never
-// has to take the claim on trust.
-export function trueShortest(b: Basis, reach = 40) {
-  let best: { vec: Vec; ij: Vec; length: number } | null = null;
-  for (let i = -reach; i <= reach; i += 1) {
-    for (let j = -reach; j <= reach; j += 1) {
-      if (i === 0 && j === 0) continue;
-      const vec = combine(b, i, j);
-      const l = len(vec);
-      if (!best || l < best.length) best = { vec, ij: [i, j], length: l };
+// Gauss reduction in two dimensions. Carry the coefficients alongside each
+// vector so the board can locate the answer in the original basis.
+export function trueShortest(b: Basis) {
+  if (det(b) === 0) throw new Error("A two-dimensional basis must have nonzero determinant.");
+  let u: Vec = b.u, v: Vec = b.v;
+  let uc: Vec = [1, 0], vc: Vec = [0, 1];
+  const squared = (w: Vec) => w[0] * w[0] + w[1] * w[1];
+  while (true) {
+    if (squared(v) < squared(u)) {
+      [u, v] = [v, u];
+      [uc, vc] = [vc, uc];
     }
+    const dot = u[0] * v[0] + u[1] * v[1];
+    if (2 * Math.abs(dot) <= squared(u)) break;
+    const k = Math.round(dot / squared(u));
+    v = [v[0] - k * u[0], v[1] - k * u[1]];
+    vc = [vc[0] - k * uc[0], vc[1] - k * uc[1]];
   }
-  // Both a vector and its antipode are shortest. Return the one on the same side
-  // of HOME as the coefficients quoted in the copy, or the board contradicts the text.
-  const r = best!;
-  if (r.vec[0] < 0 || (r.vec[0] === 0 && r.vec[1] < 0)) {
-    return { vec: [-r.vec[0], -r.vec[1]] as Vec, ij: [-r.ij[0], -r.ij[1]] as Vec, length: r.length };
+  // Either sign is shortest. Keep the display on the same side of HOME.
+  if (u[0] < 0 || (u[0] === 0 && u[1] < 0)) {
+    u = [-u[0], -u[1]];
+    uc = [-uc[0], -uc[1]];
   }
-  return r;
+  return { vec: u, ij: uc, length: len(u) };
 }
 
 // Round both coordinates in the given basis independently. This recovers the

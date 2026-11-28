@@ -16,8 +16,8 @@ export type ToyParams = {
 export const LADDER: ToyParams[] = [
   { label: "BREAKABLE", n: 4, k: 2, q: 29, eta: 1 },
   { label: "STRETCH", n: 8, k: 2, q: 97, eta: 2 },
-  { label: "NO CHANCE", n: 16, k: 2, q: 257, eta: 2 },
-  { label: "ABSURD", n: 32, k: 2, q: 769, eta: 2 },
+  { label: "TOY n=16", n: 16, k: 2, q: 257, eta: 2 },
+  { label: "TOY n=32", n: 32, k: 2, q: 769, eta: 2 },
   { label: "ML-KEM-512", n: 256, k: 2, q: 3329, eta: 3, real: true },
 ];
 
@@ -141,34 +141,5 @@ export function spaceExact(p: ToyParams): number | null {
 export function formatSpace(p: ToyParams): string {
   const exact = spaceExact(p);
   if (exact !== null) return exact.toLocaleString("en-US");
-  return `10^${Math.round(spaceLog10(p))}`;
-}
-
-// Seconds to grind the whole space at a measured rate. Everything is done in
-// log10 because the last rung overflows a double long before it overflows the
-// reader's patience.
-const YEAR_SECONDS = 31557600;
-const UNIVERSE_SECONDS = 4.35e17; // ~13.8 billion years
-
-function power(log: number, unit: string): string {
-  if (log < 6) {
-    const v = 10 ** log;
-    return `${v.toLocaleString("en-US", { maximumFractionDigits: v < 10 ? 1 : 0 })} ${unit}`;
-  }
-  return `10^${Math.round(log)} ${unit}`;
-}
-
-export function formatEta(p: ToyParams, perSecond: number): string {
-  if (perSecond <= 0) return "\u2014";
-  const log = spaceLog10(p) - Math.log10(perSecond);
-  const seconds = 10 ** log;
-  if (log < 0) return "instant";
-  if (seconds < 60) return `${seconds.toFixed(1)} seconds`;
-  if (seconds < 3600) return `${(seconds / 60).toFixed(1)} minutes`;
-  if (seconds < 86400) return `${(seconds / 3600).toFixed(1)} hours`;
-  if (seconds < YEAR_SECONDS) return `${(seconds / 86400).toFixed(1)} days`;
-  const yearsLog = log - Math.log10(YEAR_SECONDS);
-  const universeLog = log - Math.log10(UNIVERSE_SECONDS);
-  if (universeLog < 0.5) return power(yearsLog, "years");
-  return `${power(universeLog, "\u00d7").replace(" \u00d7", "\u00d7")} the age of the universe`;
+  return `${alphabet(p)}^${p.n * p.k}`;
 }

@@ -103,19 +103,19 @@ The point is what happens as you try. The leftover numbers scramble but never sh
 | 7 of 8 | **13.4** |
 | 8 of 8 | **1.0** |
 
-Getting seven of eight right is *worse* than getting none. There is no hill to climb, which is why exhaustive search is the only method left, and why the difficulty scales the way it does.
+In this instance, the group with seven correct coefficients has a mean maximum residual of 13.4, compared with 13.0 for the group with none. These means describe the displayed score on this instance. The browser measures the exhaustive search only for the first row.
 
-**Turn it up.** The same sum, the same test and the same code at larger n. The coefficient range widens with the ladder as well — each coefficient is drawn from −1…1 at n=4, −2…2 at n=8, 16 and 32, and −3…3 at n=256 (ML-KEM-512's η₁ = 3) — so the counts below are 3⁸, 5¹⁶, 5³², 5⁶⁴ and 7⁵¹². Times use the search rate the visitor's own browser just measured:
+**Turn it up.** The table counts patterns across two polynomials. Each of the `2n` coefficients has `2η + 1` possible values.
 
-| | possible private keys | time to try them all |
+| Degree and modulus | Coefficient range | Coefficient patterns |
 | --- | --- | --- |
-| n=4, q=29 | 6,561 | instant |
-| n=8, q=97 | 1.5 × 10¹¹ | days |
-| n=16, q=257 | 10²² | ~10¹⁰ years |
-| n=32, q=769 | 10⁴⁵ | 10²² × the age of the universe |
-| n=256, q=3329 | 10⁴³³ | 10⁴¹⁰ × the age of the universe |
+| n=4, q=29 | −1 to 1 | 3⁸ = 6,561 |
+| n=8, q=97 | −2 to 2 | 5¹⁶ = 152,587,890,625 |
+| n=16, q=257 | −2 to 2 | 5³² |
+| n=32, q=769 | −2 to 2 | 5⁶⁴ |
+| n=256, q=3329 | −3 to 3 | 7⁵¹² |
 
-The bottom row is not an analogy for ML-KEM-512 — it is ML-KEM-512's actual shape. Brute force is also the naive attack rather than the best one: real cryptanalysis uses lattice reduction and does far better than these figures, and is still nowhere near enough. ML-KEM-512 targets roughly the difficulty of an AES-128 key search.
+The last row uses the coefficient count and range of ML-KEM-512. Its secret coefficients are sampled nonuniformly from a 256-bit seed. Estimating security requires an attack model and the full parameter set. ML-KEM-512 targets NIST category 1, benchmarked against AES-128 key search. [FIPS 203](https://csrc.nist.gov/pubs/fips/203/final)
 
 **The real thing.** A complete ML-KEM implementation (FIPS 203) runs in the page. Two people who have never met need one shared secret over a channel an eavesdropper is reading in full; they cannot simply send it, which is the whole problem.
 

@@ -3,11 +3,9 @@ import {
   LADDER,
   alphabet,
   candidateFromCode,
-  formatEta,
   formatSpace,
   makeInstance,
   makeOps,
-  spaceLog10,
   type Instance,
   type ToyParams,
 } from "./mlwe";
@@ -153,8 +151,7 @@ export default function AdvancedMode() {
     raf.current = requestAnimationFrame(step);
   }
 
-  const measured = search.rate > 0;
-  const measuredRate = measured ? search.rate : 1e5;
+  const selectedParams = LADDER[rung];
   const tone = (v: number) => (Math.abs(v) <= TOY.eta ? "small" : "big");
 
   return (
@@ -162,7 +159,7 @@ export default function AdvancedMode() {
       <div className="lesson-heading">
         <p className="eyebrow">ADVANCED · THE REAL THING</p>
         <h2>Now break<br />a small one.</h2>
-        <p>The board above is an analogy. What follows is not — it is the construction ML-KEM actually uses, shrunk until you can break it by hand, then turned back up until nobody can.</p>
+        <p>Start with a small noisy polynomial system. Then compare its coefficient count with ML-KEM-512 and run a separate full-size exchange.</p>
       </div>
 
       <div className="stakes">
@@ -277,8 +274,8 @@ export default function AdvancedMode() {
         <div className="adv-panel wide">
           <h4>WHEN GUESSING STOPS WORKING</h4>
           <p className="adv-copy">
-            You will notice the leftover numbers do not get smaller as you get closer. They are junk until they are the answer.
-            With nothing to steer by, the only method left is trying every possible key.
+            This chart groups guesses by how many coefficients match and shows their residual scores for this instance.
+            The button tries every coefficient pattern in the toy. The chart measures only this scoring rule.
           </p>
           <button className="primary-button" onClick={runSearch} disabled={search.running}>
             {search.running ? "SEARCHING…" : search.found ? "SEARCH AGAIN" : `TRY ALL ${formatSpace(TOY)} PRIVATE KEYS`}<span>→</span>
@@ -316,7 +313,7 @@ export default function AdvancedMode() {
                 );
               })}
             </div>
-            <p className="adv-note">Average size of the biggest leftover number, per group. Smaller is closer to being the key.</p>
+            <p className="adv-note">Average size of the biggest leftover number, per group. Smaller values mean a smaller residual under this score.</p>
           </div>
         )}
       </div>
@@ -324,46 +321,29 @@ export default function AdvancedMode() {
       <div className="adv-block">
         <div className="adv-head"><span>02 / TURN IT UP</span><h3>The same sum, bigger numbers</h3></div>
         <p className="adv-copy">
-          Nothing about the construction changes below — same <b>t = A·s + e</b>, same test, same search, same code.
-          Only the size of the polynomials grows. Times use the rate your browser {measured ? "measured" : "would be assumed to manage until you run the search above"}.
+          Each row counts coefficient patterns. Select a row to see how the polynomial degree and coefficient range determine the count.
         </p>
         <div className="ladder">
-          <div className="ladder-row is-head"><span>PARAMETERS</span><span>POSSIBLE PRIVATE KEYS</span><span>TIME TO TRY THEM ALL</span></div>
+          <div className="ladder-row is-head"><span>PARAMETERS</span><span>COEFFICIENT PATTERNS</span><span>COEFFICIENT RANGE</span></div>
           {LADDER.map((p: ToyParams, i) => (
-            <button className={`ladder-row ${i === rung ? "on" : ""} ${p.real ? "is-real" : ""}`} key={p.label} onClick={() => setRung(i)}>
+            <button className={`ladder-row ${i === rung ? "on" : ""} ${p.real ? "is-real" : ""}`} key={p.label} onClick={() => setRung(i)} aria-pressed={i === rung}>
               <span><b>{p.label}</b> n={p.n} k={p.k} q={p.q}</span>
               <span>{formatSpace(p)}</span>
-              <span>{formatEta(p, measuredRate)}</span>
+              <span>−{p.eta} through +{p.eta}</span>
             </button>
           ))}
         </div>
-        {(() => {
-          const p = LADDER[rung];
-          const logFraction = Math.log10(measuredRate) - spaceLog10(p);
-          const percent = Math.min(100, 10 ** logFraction * 100);
-          return (
-            <div className="rung-payout">
-              <h4>AT THIS SIZE</h4>
-              <p className="adv-note">
-                The secret is {p.n * p.k} slots, each holding one of {alphabet(p)} values — <b>{formatSpace(p)}</b> possible keys.
-                At the {Math.round(measuredRate).toLocaleString("en-US")} keys per second your browser {measured ? "measured" : "is assumed to manage"}, one second of
-                searching covers this much of it:
-              </p>
-              <div className="scale-bar"><i style={{ width: `${Math.max(percent, 0)}%` }} /></div>
-              <p className="adv-note">
-                {percent >= 100
-                  ? "All of it, with time to spare."
-                  : percent < 0.000001
-                    ? "The bar is drawn to scale. There is nothing to draw."
-                    : `${percent.toPrecision(2)}% of it.`}
-              </p>
-            </div>
-          );
-        })()}
+        <div className="rung-payout" aria-live="polite">
+          <h4>AT THIS SIZE</h4>
+          <p className="adv-note">
+            {selectedParams.k} polynomials × {selectedParams.n} coefficients gives {selectedParams.k * selectedParams.n} positions.
+            Each position has {alphabet(selectedParams)} possible values. The product gives <b>{formatSpace(selectedParams)}</b> coefficient patterns.
+          </p>
+        </div>
         <p className="adv-note">
-          The bottom row is not an analogy for ML-KEM-512 — it is ML-KEM-512's actual shape. Brute force is also the naive
-          attack rather than the best one: real cryptanalysis uses lattice reduction and does far better than these figures,
-          and is still nowhere near enough. ML-KEM-512 is designed to be about as hard to break as AES-128.
+          ML-KEM-512 samples its secret coefficients from a nonuniform distribution using a 256-bit seed.
+          A count of possible patterns alone gives neither key entropy nor attack cost. ML-KEM-512 targets NIST security category 1,
+          whose benchmark is AES-128 key search. <a href="https://csrc.nist.gov/pubs/fips/203/final">FIPS 203</a>
         </p>
       </div>
 
