@@ -410,11 +410,10 @@ function Instrument() {
       <div className="stakes">
         <span>WHAT THIS IS FOR</span>
         <p>
-          Two people who have never met need one shared secret, and the only channel between them is one an eavesdropper is
-          reading in full. They cannot simply send the secret — that is the whole problem. What they can do is send a public key
-          and a scrambled package, and both arrive at the same 32 bytes anyway. Everything below is real: this is ML-KEM, the
-          FIPS 203 algorithm, implemented in this page and checked against 180 of NIST's published ACVP vectors — every keyGen,
-          encapsulation and decapsulation case for all three parameter sets.
+          A sender uses the receiver’s public encapsulation key to make a ciphertext and a 32-byte shared secret.
+          The receiver uses the ciphertext and its decapsulation key to derive the same secret. This teaching
+          implementation matches 180 functional NIST ACVP vectors across the three ML-KEM parameter sets. It omits
+          the input validation exercised by the 60 key-check vectors in the same test files.
         </p>
       </div>
 
@@ -503,9 +502,10 @@ function Instrument() {
             </div>
           </div>
           <p className="adv-note">
-            Decapsulation did not fail and did not complain — it returned a different key, derived from a value only the receiver
-            holds. An attacker who tampers therefore learns nothing from the outcome, because there is no outcome to read. That
-            is implicit rejection, and it is the part of the standard easiest to get quietly wrong.
+            This ciphertext has the expected length and fails the internal re-encryption check. Decapsulation returns
+            a 32-byte fallback key derived from the receiver’s fallback secret and the ciphertext. The panel shows
+            both keys for comparison. The absence of an explicit error says nothing about timing or how a calling
+            protocol uses the returned key.
           </p>
         </div>
       )}
